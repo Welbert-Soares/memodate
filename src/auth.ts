@@ -2,6 +2,7 @@ import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
+import { seedHolidaysForUser } from '@/lib/holidays'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,6 +20,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, user }) {
       session.user.id = user.id
       return session
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      if (user.id) {
+        await seedHolidaysForUser(user.id)
+      }
     },
   },
 })

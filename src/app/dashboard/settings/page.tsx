@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { NotificationToggle } from '@/components/NotificationToggle'
+import { ImportHolidaysButton } from '@/components/ImportHolidaysButton'
 
 export default async function SettingsPage() {
   const session = await auth()
@@ -26,6 +27,13 @@ export default async function SettingsPage() {
               Notificações
             </p>
             <NotificationToggle />
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+              Datas comemorativas
+            </p>
+            <ImportHolidaysButton />
           </div>
         </div>
       </div>
