@@ -169,26 +169,24 @@ export function EventCard({
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-2xl">
-        {/* Left action: Edit */}
+      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
+        {/* Left action: Edit (same bg as card — only icon is visible) */}
         <button
           onClick={() => router.push(`/dashboard/events/${id}/edit`)}
-          className="absolute left-0 top-0 bottom-0 w-[80px] flex flex-col items-center justify-center gap-1 bg-indigo-500 text-white"
+          className="absolute left-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800"
         >
-          <LuPencil size={22} />
-          <span className="text-[10px] font-semibold">Editar</span>
+          <LuPencil size={24} className="text-orange-500" />
         </button>
 
-        {/* Right action: Delete */}
+        {/* Right action: Delete (same bg as card — only icon is visible) */}
         <button
           onClick={openDeleteSheet}
-          className="absolute right-0 top-0 bottom-0 w-[80px] flex flex-col items-center justify-center gap-1 bg-red-500 text-white"
+          className="absolute right-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800"
         >
-          <LuTrash2 size={22} />
-          <span className="text-[10px] font-semibold">Excluir</span>
+          <LuTrash2 size={24} className="text-red-500" />
         </button>
 
-        {/* Card */}
+        {/* Content — slides over the icons */}
         <div
           style={{
             transform: `translateX(${swipeOffset}px)`,
@@ -199,7 +197,7 @@ export function EventCard({
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4 relative cursor-pointer"
+          className="bg-white dark:bg-gray-800 px-4 py-4 relative cursor-pointer"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
