@@ -94,6 +94,8 @@ export async function GET(req: Request) {
       const payload = JSON.stringify({
         title: 'Memodate 🗓️',
         body: buildMessage(event),
+        tag: `event-${event.id}`,
+        url: '/dashboard',
       })
 
       for (const sub of user.pushSubscriptions) {

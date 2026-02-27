@@ -69,8 +69,9 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/icon',
-      badge: '/icon',
+      icon: '/icone_memodate.webp',
+      badge: '/icone_memodate.webp',
+      tag: data.tag || 'memodate',
       data: data,
     }),
   )
@@ -80,14 +81,16 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
 
+  const url = event.notification.data?.url || '/dashboard'
+
   event.waitUntil(
     self.clients
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((clients) => {
         if (clients.length > 0) {
-          return clients[0].focus()
+          return clients[0].navigate(url).then((client) => client.focus())
         }
-        return self.clients.openWindow('/dashboard')
+        return self.clients.openWindow(url)
       }),
   )
 })
