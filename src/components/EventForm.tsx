@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useTransition } from 'react'
 import { EventType } from '@/generated/prisma'
 
 const EVENT_TYPE_LABELS: Record<EventType, string> = {
@@ -21,17 +24,25 @@ type EventFormProps = {
 }
 
 const inputClass =
-  'rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500'
+  'rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed'
 
 const labelClass = 'text-sm font-medium text-gray-700 dark:text-gray-300'
 
 export function EventForm({ action, defaultValues }: EventFormProps) {
+  const [isPending, startTransition] = useTransition()
+
   const defaultDate = defaultValues?.date
     ? new Date(defaultValues.date).toISOString().split('T')[0]
     : ''
 
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      await action(formData)
+    })
+  }
+
   return (
-    <form action={action} className="flex flex-col gap-5">
+    <form action={handleSubmit} className={`flex flex-col gap-5 transition-opacity ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="title" className={labelClass}>Título</label>
         <input
@@ -39,6 +50,7 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
           name="title"
           type="text"
           required
+          disabled={isPending}
           defaultValue={defaultValues?.title}
           placeholder="Ex: Aniversário da mamãe"
           className={inputClass}
@@ -52,6 +64,7 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
           name="date"
           type="date"
           required
+          disabled={isPending}
           defaultValue={defaultDate}
           className={inputClass}
         />
@@ -62,6 +75,7 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
         <select
           id="type"
           name="type"
+          disabled={isPending}
           defaultValue={defaultValues?.type ?? 'OTHER'}
           className={inputClass}
         >
@@ -81,6 +95,7 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
             type="checkbox"
             name="recurring"
             value="true"
+            disabled={isPending}
             defaultChecked={defaultValues?.recurring ?? true}
             className="peer sr-only"
           />
@@ -95,6 +110,7 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
         <select
           id="daysBeforeAlert"
           name="daysBeforeAlert"
+          disabled={isPending}
           defaultValue={defaultValues?.daysBeforeAlert ?? 1}
           className={inputClass}
         >
@@ -116,6 +132,7 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
           id="notes"
           name="notes"
           rows={3}
+          disabled={isPending}
           defaultValue={defaultValues?.notes ?? ''}
           placeholder="Ex: Ligar às 8h, comprar presente..."
           className={`${inputClass} resize-none`}
@@ -131,9 +148,10 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
         </Link>
         <button
           type="submit"
-          className="flex-1 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+          disabled={isPending}
+          className="flex-1 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-medium text-white hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Salvar
+          {isPending ? 'Salvando...' : 'Salvar'}
         </button>
       </div>
     </form>
