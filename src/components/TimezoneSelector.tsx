@@ -31,22 +31,12 @@ export function TimezoneSelector({ current }: { current: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Fuso horário
-        </p>
-        {saved && (
-          <span className="text-xs font-medium text-green-600 dark:text-green-400">
-            ✓ Salvo
-          </span>
-        )}
-      </div>
+    <div className="flex flex-col gap-1.5">
       <select
         defaultValue={current}
         onChange={handleChange}
         disabled={isPending}
-        className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+        className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
       >
         {TIMEZONES.map((tz) => (
           <option key={tz.value} value={tz.value}>
@@ -54,6 +44,11 @@ export function TimezoneSelector({ current }: { current: string }) {
           </option>
         ))}
       </select>
+      {saved && (
+        <span className="text-xs font-medium text-green-600 dark:text-green-400">
+          ✓ Salvo
+        </span>
+      )}
     </div>
   )
 }

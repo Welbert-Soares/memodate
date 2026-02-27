@@ -103,13 +103,16 @@ export default async function ProfilePage() {
               Preferências
             </p>
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-              <div className="px-4 py-4 flex items-start gap-3">
-                <div className="w-8 h-8 mt-0.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
-                  <LuClock size={16} className="text-indigo-600 dark:text-indigo-400" />
+              <div className="px-4 pt-4 pb-3 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                    <LuClock size={16} className="text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Fuso horário
+                  </p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <TimezoneSelector current={timezone} />
-                </div>
+                <TimezoneSelector current={timezone} />
               </div>
             </div>
           </div>
