@@ -10,6 +10,7 @@ import {
   LuChevronRight,
 } from 'react-icons/lu'
 import Link from 'next/link'
+import { haptic } from '@/lib/haptic'
 
 export type ProcessedEvent = {
   id: string
@@ -128,6 +129,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
   const dayEvents = selectedDay ? (eventsByDay.get(selectedDay) ?? []) : []
 
   function prevMonth() {
+    haptic(6)
     setSelectedDay(null)
     if (calMonth === 0) {
       setCalYear((y) => y - 1)
@@ -135,6 +137,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
     } else setCalMonth((m) => m - 1)
   }
   function nextMonth() {
+    haptic(6)
     setSelectedDay(null)
     if (calMonth === 11) {
       setCalYear((y) => y + 1)
@@ -149,13 +152,13 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
         {/* View toggle */}
         <div className="flex rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
           <button
-            onClick={() => setView('list')}
+            onClick={() => { haptic(6); setView('list') }}
             className={`px-3 py-1.5 text-sm transition-all active:scale-95 touch-manipulation ${view === 'list' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
           >
             <LuList size={16} />
           </button>
           <button
-            onClick={() => setView('calendar')}
+            onClick={() => { haptic(6); setView('calendar') }}
             className={`px-3 py-1.5 text-sm transition-all active:scale-95 touch-manipulation ${view === 'calendar' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
           >
             <LuCalendarDays size={16} />
@@ -165,7 +168,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
         {/* Filter chips */}
         <div className="flex gap-1.5 overflow-x-auto flex-1 scrollbar-hide">
           <button
-            onClick={() => setFilter('ALL')}
+            onClick={() => { haptic(6); setFilter('ALL') }}
             className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 touch-manipulation ${
               filter === 'ALL'
                 ? 'bg-indigo-600 text-white'
@@ -179,7 +182,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
             .map((f) => (
               <button
                 key={f.value}
-                onClick={() => setFilter(f.value)}
+                onClick={() => { haptic(6); setFilter(f.value) }}
                 className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 touch-manipulation ${
                   filter === f.value
                     ? 'bg-indigo-600 text-white'
@@ -270,9 +273,10 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                 return (
                   <button
                     key={i}
-                    onClick={() =>
+                    onClick={() => {
+                      haptic(6)
                       setSelectedDay(day === selectedDay ? null : day)
-                    }
+                    }}
                     className={`relative flex flex-col items-center py-1.5 rounded-xl transition-all active:scale-90 touch-manipulation ${
                       isSelected
                         ? 'bg-indigo-600'
