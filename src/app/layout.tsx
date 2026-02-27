@@ -4,6 +4,11 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Memodate',
   description: 'Lembretes de datas importantes',
+  icons: {
+    icon: [{ url: '/icone_memodate.webp', type: 'image/webp' }],
+    apple: [{ url: '/icone_memodate.webp', type: 'image/webp' }],
+    shortcut: '/icone_memodate.webp',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
