@@ -74,24 +74,25 @@ export function EventDetailModal({
 
   // Drag-to-dismiss
   const [dragY, setDragY] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
   const dragRef = useRef<{ startY: number; lastY: number; lastTime: number } | null>(null)
   const passedThreshold = useRef(false)
 
   useEffect(() => {
     if (isOpen) {
-      setDragY(0)
       passedThreshold.current = false
       requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
     } else {
-      setVisible(false)
-      setDragY(0)
+      setTimeout(() => {
+        setVisible(false)
+        setDragY(0)
+      }, 0)
     }
   }, [isOpen])
 
   if (!isOpen) return null
 
   const typeConfig = TYPE_CONFIG[type]
-  const isDragging = dragRef.current !== null
   const backdropOpacity = visible ? Math.max(0, 0.4 - dragY / 400) : 0
 
   function onSheetTouchStart(e: React.TouchEvent) {
@@ -101,6 +102,7 @@ export function EventDetailModal({
       lastTime: Date.now(),
     }
     passedThreshold.current = false
+    setIsDragging(true)
   }
 
   function onSheetTouchMove(e: React.TouchEvent) {
@@ -122,6 +124,7 @@ export function EventDetailModal({
     const elapsed = Date.now() - dragRef.current.lastTime
     const velocity = elapsed < 80 ? Math.abs(dy) / Math.max(elapsed, 1) : 0
     dragRef.current = null
+    setIsDragging(false)
     if (dy > 120 || velocity > 1) {
       onClose()
     } else {

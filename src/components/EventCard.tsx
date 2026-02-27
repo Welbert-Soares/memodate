@@ -71,7 +71,8 @@ export function EventCard({
   const [swipeOffset, setSwipeOffset] = useState(0)
   const baseOffsetRef = useRef(0)
   const startXRef = useRef<number | null>(null)
-  const isDragging = useRef(false)
+  const isDraggingRef = useRef(false)
+  const [isDragging, setIsDragging] = useState(false)
 
   // Detail modal
   const [detailOpen, setDetailOpen] = useState(false)
@@ -81,6 +82,7 @@ export function EventCard({
   const [deleteVisible, setDeleteVisible] = useState(false)
   const [deleteSheetDragY, setDeleteSheetDragY] = useState(0)
   const deleteSheetDragRef = useRef<{ startY: number; lastY: number; lastTime: number } | null>(null)
+  const [isDeleteSheetDragging, setIsDeleteSheetDragging] = useState(false)
 
   // Undo delete
   const [isDeleting, setIsDeleting] = useState(false)
@@ -130,11 +132,12 @@ export function EventCard({
 
   function onTouchStart(e: React.TouchEvent) {
     startXRef.current = e.touches[0].clientX
-    isDragging.current = true
+    isDraggingRef.current = true
+    setIsDragging(true)
   }
 
   function onTouchMove(e: React.TouchEvent) {
-    if (!isDragging.current || startXRef.current === null) return
+    if (!isDraggingRef.current || startXRef.current === null) return
     const dx = e.touches[0].clientX - startXRef.current
     const raw = baseOffsetRef.current + dx
     const clamped = Math.max(-REVEAL, Math.min(REVEAL, raw))
@@ -142,7 +145,8 @@ export function EventCard({
   }
 
   function onTouchEnd(e: React.TouchEvent) {
-    isDragging.current = false
+    isDraggingRef.current = false
+    setIsDragging(false)
     if (startXRef.current === null) return
 
     const dx = e.changedTouches[0].clientX - startXRef.current
@@ -177,6 +181,7 @@ export function EventCard({
       lastY: e.touches[0].clientY,
       lastTime: Date.now(),
     }
+    setIsDeleteSheetDragging(true)
   }
 
   function onDeleteSheetTouchMove(e: React.TouchEvent) {
@@ -193,6 +198,7 @@ export function EventCard({
     const elapsed = Date.now() - deleteSheetDragRef.current.lastTime
     const velocity = elapsed < 80 ? Math.abs(dy) / Math.max(elapsed, 1) : 0
     deleteSheetDragRef.current = null
+    setIsDeleteSheetDragging(false)
     if (dy > 120 || velocity > 1) {
       closeDeleteSheet()
     } else {
@@ -242,7 +248,7 @@ export function EventCard({
         <div
           style={{
             transform: `translateX(${swipeOffset}px)`,
-            transition: isDragging.current
+            transition: isDragging
               ? 'none'
               : 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           }}
@@ -302,8 +308,8 @@ export function EventCard({
           <div
             className="fixed bottom-0 left-0 right-0 z-50"
             style={{
-              transform: `translateY(${deleteSheetDragRef.current || deleteSheetDragY > 0 ? deleteSheetDragY : deleteVisible ? 0 : 9999}px)`,
-              transition: deleteSheetDragRef.current ? 'none' : 'transform 300ms ease-out',
+              transform: `translateY(${isDeleteSheetDragging || deleteSheetDragY > 0 ? deleteSheetDragY : deleteVisible ? 0 : 9999}px)`,
+              transition: isDeleteSheetDragging ? 'none' : 'transform 300ms ease-out',
             }}
           >
             <div

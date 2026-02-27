@@ -23,6 +23,7 @@ export function NotificationPrompt() {
 
   // Drag-to-dismiss
   const [dragY, setDragY] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
   const dragRef = useRef<{ startY: number; lastY: number; lastTime: number } | null>(null)
 
   useEffect(() => {
@@ -84,6 +85,7 @@ export function NotificationPrompt() {
       lastY: e.touches[0].clientY,
       lastTime: Date.now(),
     }
+    setIsDragging(true)
   }
 
   function onSheetTouchMove(e: React.TouchEvent) {
@@ -100,6 +102,7 @@ export function NotificationPrompt() {
     const elapsed = Date.now() - dragRef.current.lastTime
     const velocity = elapsed < 80 ? Math.abs(dy) / Math.max(elapsed, 1) : 0
     dragRef.current = null
+    setIsDragging(false)
     if (dy > 120 || velocity > 1) {
       handleLater()
     } else {
@@ -109,7 +112,6 @@ export function NotificationPrompt() {
 
   if (!show) return null
 
-  const isDragging = dragRef.current !== null
   const backdropOpacity = visible ? Math.max(0, 0.4 - dragY / 400) : 0
 
   return (
