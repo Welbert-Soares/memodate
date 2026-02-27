@@ -129,7 +129,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
   return (
     <>
       {/* Toolbar: view toggle + filter chips */}
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2 mb-4">
         {/* View toggle */}
         <div className="flex rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
           <button

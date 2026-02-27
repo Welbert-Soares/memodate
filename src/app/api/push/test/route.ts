@@ -24,7 +24,7 @@ export async function GET() {
 
   const payload = JSON.stringify({
     title: 'Memodate 🗓️',
-    body: 'Notificação de teste funcionando!',
+    body: '🎂 Aniversário da mamãe é amanhã! Não esqueça de ligar.',
   })
 
   let sent = 0
