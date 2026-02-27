@@ -5,8 +5,10 @@ import { getEvents } from '@/lib/actions/events'
 import { EventType } from '@/generated/prisma'
 import { LuCalendar } from 'react-icons/lu'
 import { NotificationPrompt } from '@/components/NotificationPrompt'
+import { InstallPrompt } from '@/components/InstallPrompt'
 import { Toast } from '@/components/Toast'
 import { DashboardContent, ProcessedEvent } from '@/components/DashboardContent'
+import { ScrollArea } from '@/components/ScrollArea'
 import Link from 'next/link'
 
 const TYPE_CONFIG: Record<
@@ -130,7 +132,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
+      <ScrollArea storageKey="dashboard">
         <div className="max-w-lg mx-auto px-4 py-4">
           {events.length === 0 ? (
             <div className="text-center py-16 flex flex-col items-center gap-3">
@@ -140,7 +142,7 @@ export default async function DashboardPage() {
               </p>
               <Link
                 href="/dashboard/events/new"
-                className="mt-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+                className="mt-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 active:scale-[0.97] transition-all touch-manipulation"
               >
                 Criar evento
               </Link>
@@ -149,9 +151,10 @@ export default async function DashboardPage() {
             <DashboardContent events={events} />
           )}
         </div>
-      </div>
+      </ScrollArea>
 
       <NotificationPrompt />
+      <InstallPrompt />
       <Suspense>
         <Toast />
       </Suspense>

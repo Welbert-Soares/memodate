@@ -6,6 +6,7 @@ import { LuTrash2, LuPencil } from 'react-icons/lu'
 import { deleteEventById } from '@/lib/actions/events'
 import { EventType } from '@/generated/prisma'
 import { EventDetailModal } from '@/components/EventDetailModal'
+import { haptic } from '@/lib/haptic'
 
 type EventCardProps = {
   id: string
@@ -78,6 +79,8 @@ export function EventCard({
   // Delete sheet
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteVisible, setDeleteVisible] = useState(false)
+  const [deleteSheetDragY, setDeleteSheetDragY] = useState(0)
+  const deleteSheetDragRef = useRef<{ startY: number; lastY: number; lastTime: number } | null>(null)
 
   // Undo delete
   const [isDeleting, setIsDeleting] = useState(false)
@@ -85,12 +88,14 @@ export function EventCard({
   const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function snapTo(val: number) {
+    if (val !== 0 && val !== baseOffsetRef.current) haptic(10)
     baseOffsetRef.current = val
     setSwipeOffset(val)
   }
 
   function openDeleteSheet() {
     snapTo(0)
+    setDeleteSheetDragY(0)
     setDeleteOpen(true)
     requestAnimationFrame(() =>
       requestAnimationFrame(() => setDeleteVisible(true)),
@@ -99,7 +104,7 @@ export function EventCard({
 
   function closeDeleteSheet() {
     setDeleteVisible(false)
-    setTimeout(() => setDeleteOpen(false), 300)
+    setTimeout(() => { setDeleteOpen(false); setDeleteSheetDragY(0) }, 300)
   }
 
   function handleDeleteRequest() {
@@ -108,6 +113,7 @@ export function EventCard({
   }
 
   function handleConfirmDelete() {
+    haptic([10, 50, 15])
     closeDeleteSheet()
     setIsDeleting(true)
     deleteTimerRef.current = setTimeout(() => {
@@ -150,6 +156,7 @@ export function EventCard({
 
     // Tap on closed card → open detail modal
     if (Math.abs(dx) < 6 && baseOffsetRef.current === 0) {
+      haptic(8)
       setDetailOpen(true)
       return
     }
@@ -160,6 +167,36 @@ export function EventCard({
       snapTo(REVEAL)
     } else {
       snapTo(0)
+    }
+  }
+
+  // Delete sheet drag-to-dismiss handlers
+  function onDeleteSheetTouchStart(e: React.TouchEvent) {
+    deleteSheetDragRef.current = {
+      startY: e.touches[0].clientY,
+      lastY: e.touches[0].clientY,
+      lastTime: Date.now(),
+    }
+  }
+
+  function onDeleteSheetTouchMove(e: React.TouchEvent) {
+    if (!deleteSheetDragRef.current) return
+    const dy = e.touches[0].clientY - deleteSheetDragRef.current.startY
+    deleteSheetDragRef.current.lastY = e.touches[0].clientY
+    deleteSheetDragRef.current.lastTime = Date.now()
+    setDeleteSheetDragY(Math.max(0, dy))
+  }
+
+  function onDeleteSheetTouchEnd(e: React.TouchEvent) {
+    if (!deleteSheetDragRef.current) return
+    const dy = e.changedTouches[0].clientY - deleteSheetDragRef.current.startY
+    const elapsed = Date.now() - deleteSheetDragRef.current.lastTime
+    const velocity = elapsed < 80 ? Math.abs(dy) / Math.max(elapsed, 1) : 0
+    deleteSheetDragRef.current = null
+    if (dy > 120 || velocity > 1) {
+      closeDeleteSheet()
+    } else {
+      setDeleteSheetDragY(0)
     }
   }
 
@@ -258,17 +295,25 @@ export function EventCard({
       {deleteOpen && (
         <>
           <div
-            className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${deleteVisible ? 'opacity-100' : 'opacity-0'}`}
+            className="fixed inset-0 z-40 bg-black transition-opacity duration-300"
+            style={{ opacity: deleteVisible ? Math.max(0, 0.4 - deleteSheetDragY / 400) : 0 }}
             onClick={closeDeleteSheet}
           />
           <div
-            className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-out ${deleteVisible ? 'translate-y-0' : 'translate-y-full'}`}
+            className="fixed bottom-0 left-0 right-0 z-50"
+            style={{
+              transform: `translateY(${deleteSheetDragRef.current || deleteSheetDragY > 0 ? deleteSheetDragY : deleteVisible ? 0 : 9999}px)`,
+              transition: deleteSheetDragRef.current ? 'none' : 'transform 300ms ease-out',
+            }}
           >
             <div
               className="bg-white dark:bg-gray-800 rounded-t-3xl px-6 pt-6 shadow-2xl"
               style={{
                 paddingBottom: 'max(2.5rem, env(safe-area-inset-bottom))',
               }}
+              onTouchStart={onDeleteSheetTouchStart}
+              onTouchMove={onDeleteSheetTouchMove}
+              onTouchEnd={onDeleteSheetTouchEnd}
             >
               <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6" />
               <div className="flex flex-col items-center gap-2 text-center mb-6">
@@ -288,13 +333,13 @@ export function EventCard({
               <div className="flex flex-col gap-3">
                 <button
                   onClick={handleConfirmDelete}
-                  className="w-full rounded-xl bg-red-500 px-4 py-3.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
+                  className="w-full rounded-xl bg-red-500 px-4 py-3.5 text-sm font-semibold text-white hover:bg-red-600 active:scale-[0.97] transition-all touch-manipulation"
                 >
                   Sim, excluir
                 </button>
                 <button
                   onClick={closeDeleteSheet}
-                  className="w-full rounded-xl px-4 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="w-full rounded-xl px-4 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-[0.97] transition-all touch-manipulation"
                 >
                   Cancelar
                 </button>

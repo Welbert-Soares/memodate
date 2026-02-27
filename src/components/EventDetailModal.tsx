@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { EventType } from '@/generated/prisma'
 import {
@@ -12,6 +12,7 @@ import {
   LuTrash2,
   LuX,
 } from 'react-icons/lu'
+import { haptic } from '@/lib/haptic'
 
 const TYPE_CONFIG: Record<EventType, { label: string; color: string }> = {
   BIRTHDAY: {
@@ -71,31 +72,84 @@ export function EventDetailModal({
   const router = useRouter()
   const [visible, setVisible] = useState(false)
 
+  // Drag-to-dismiss
+  const [dragY, setDragY] = useState(0)
+  const dragRef = useRef<{ startY: number; lastY: number; lastTime: number } | null>(null)
+  const passedThreshold = useRef(false)
+
   useEffect(() => {
     if (isOpen) {
+      setDragY(0)
+      passedThreshold.current = false
       requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
     } else {
       setVisible(false)
+      setDragY(0)
     }
   }, [isOpen])
 
   if (!isOpen) return null
 
   const typeConfig = TYPE_CONFIG[type]
+  const isDragging = dragRef.current !== null
+  const backdropOpacity = visible ? Math.max(0, 0.4 - dragY / 400) : 0
+
+  function onSheetTouchStart(e: React.TouchEvent) {
+    dragRef.current = {
+      startY: e.touches[0].clientY,
+      lastY: e.touches[0].clientY,
+      lastTime: Date.now(),
+    }
+    passedThreshold.current = false
+  }
+
+  function onSheetTouchMove(e: React.TouchEvent) {
+    if (!dragRef.current) return
+    const dy = e.touches[0].clientY - dragRef.current.startY
+    dragRef.current.lastY = e.touches[0].clientY
+    dragRef.current.lastTime = Date.now()
+    const clamped = Math.max(0, dy)
+    setDragY(clamped)
+    if (clamped > 80 && !passedThreshold.current) {
+      passedThreshold.current = true
+      haptic(8)
+    }
+  }
+
+  function onSheetTouchEnd(e: React.TouchEvent) {
+    if (!dragRef.current) return
+    const dy = e.changedTouches[0].clientY - dragRef.current.startY
+    const elapsed = Date.now() - dragRef.current.lastTime
+    const velocity = elapsed < 80 ? Math.abs(dy) / Math.max(elapsed, 1) : 0
+    dragRef.current = null
+    if (dy > 120 || velocity > 1) {
+      onClose()
+    } else {
+      setDragY(0)
+    }
+  }
 
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        className="fixed inset-0 z-40 bg-black transition-opacity duration-300"
+        style={{ opacity: backdropOpacity }}
         onClick={onClose}
       />
 
       <div
-        className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-out ${visible ? 'translate-y-0' : 'translate-y-full'}`}
+        className="fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          transform: `translateY(${isDragging || dragY > 0 ? dragY : visible ? 0 : 9999}px)`,
+          transition: isDragging ? 'none' : 'transform 300ms ease-out',
+        }}
       >
         <div
           className="bg-white dark:bg-gray-800 rounded-t-3xl shadow-2xl"
           style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+          onTouchStart={onSheetTouchStart}
+          onTouchMove={onSheetTouchMove}
+          onTouchEnd={onSheetTouchEnd}
         >
           {/* Handle */}
           <div className="flex justify-center pt-3 pb-1">
@@ -116,7 +170,7 @@ export function EventDetailModal({
             </div>
             <button
               onClick={onClose}
-              className="shrink-0 p-1.5 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="shrink-0 p-1.5 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90 transition-all touch-manipulation"
             >
               <LuX size={20} />
             </button>
@@ -200,14 +254,14 @@ export function EventDetailModal({
                 onClose()
                 router.push(`/dashboard/events/${id}/edit`)
               }}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-600 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-600 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-[0.96] transition-all touch-manipulation"
             >
               <LuPencil size={16} className="text-yellow-500" />
               Editar
             </button>
             <button
               onClick={onDeleteRequest}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 active:scale-[0.96] transition-all touch-manipulation"
             >
               <LuTrash2 size={16} />
               Excluir

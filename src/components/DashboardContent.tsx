@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EventType } from '@/generated/prisma'
 import { EventCard } from '@/components/EventCard'
 import {
@@ -93,6 +93,21 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
   const todayMonth = now.getMonth()
   const todayDay = now.getDate()
 
+  // App badge: show count of events in next 30 days
+  useEffect(() => {
+    const nav = navigator as Navigator & {
+      setAppBadge?: (count?: number) => Promise<void>
+      clearAppBadge?: () => Promise<void>
+    }
+    if (!nav.setAppBadge) return
+    const count = events.filter((e) => e.days >= 0 && e.days <= 30).length
+    if (count > 0) {
+      nav.setAppBadge(count)
+    } else {
+      nav.clearAppBadge?.()
+    }
+  }, [events])
+
   const filtered =
     filter === 'ALL' ? events : events.filter((e) => e.type === filter)
 
@@ -135,13 +150,13 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
         <div className="flex rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
           <button
             onClick={() => setView('list')}
-            className={`px-3 py-1.5 text-sm transition-colors ${view === 'list' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+            className={`px-3 py-1.5 text-sm transition-all active:scale-95 touch-manipulation ${view === 'list' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
           >
             <LuList size={16} />
           </button>
           <button
             onClick={() => setView('calendar')}
-            className={`px-3 py-1.5 text-sm transition-colors ${view === 'calendar' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+            className={`px-3 py-1.5 text-sm transition-all active:scale-95 touch-manipulation ${view === 'calendar' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
           >
             <LuCalendarDays size={16} />
           </button>
@@ -151,7 +166,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
         <div className="flex gap-1.5 overflow-x-auto flex-1 scrollbar-hide">
           <button
             onClick={() => setFilter('ALL')}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 touch-manipulation ${
               filter === 'ALL'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
@@ -165,7 +180,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 touch-manipulation ${
                   filter === f.value
                     ? 'bg-indigo-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
@@ -212,7 +227,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
             <div className="flex items-center justify-between mb-4">
               <button
                 onClick={prevMonth}
-                className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90 transition-all touch-manipulation"
               >
                 <LuChevronLeft size={18} />
               </button>
@@ -221,7 +236,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
               </span>
               <button
                 onClick={nextMonth}
-                className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90 transition-all touch-manipulation"
               >
                 <LuChevronRight size={18} />
               </button>
@@ -258,7 +273,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                     onClick={() =>
                       setSelectedDay(day === selectedDay ? null : day)
                     }
-                    className={`relative flex flex-col items-center py-1.5 rounded-xl transition-colors ${
+                    className={`relative flex flex-col items-center py-1.5 rounded-xl transition-all active:scale-90 touch-manipulation ${
                       isSelected
                         ? 'bg-indigo-600'
                         : isToday
