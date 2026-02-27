@@ -2,14 +2,14 @@ import { signIn } from '@/auth'
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center gap-6">
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 flex flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-2">
           <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center">
             <span className="text-white text-2xl font-bold">M</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Memodate</h1>
-          <p className="text-sm text-gray-500 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Memodate</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
             Lembretes de datas importantes
           </p>
         </div>
@@ -23,7 +23,7 @@ export default function LoginPage() {
         >
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-center gap-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -47,7 +47,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-xs text-gray-400 text-center">
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
           Ao entrar, você concorda com o uso do app para lembretes pessoais.
         </p>
       </div>

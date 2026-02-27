@@ -20,6 +20,11 @@ type EventFormProps = {
   }
 }
 
+const inputClass =
+  'rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500'
+
+const labelClass = 'text-sm font-medium text-gray-700 dark:text-gray-300'
+
 export function EventForm({ action, defaultValues }: EventFormProps) {
   const defaultDate = defaultValues?.date
     ? new Date(defaultValues.date).toISOString().split('T')[0]
@@ -27,11 +32,8 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
 
   return (
     <form action={action} className="flex flex-col gap-5">
-      {/* Título */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="title" className="text-sm font-medium text-gray-700">
-          Título
-        </label>
+        <label htmlFor="title" className={labelClass}>Título</label>
         <input
           id="title"
           name="title"
@@ -39,51 +41,40 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
           required
           defaultValue={defaultValues?.title}
           placeholder="Ex: Aniversário da mamãe"
-          className="rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className={inputClass}
         />
       </div>
 
-      {/* Data */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="date" className="text-sm font-medium text-gray-700">
-          Data
-        </label>
+        <label htmlFor="date" className={labelClass}>Data</label>
         <input
           id="date"
           name="date"
           type="date"
           required
           defaultValue={defaultDate}
-          className="rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className={inputClass}
         />
       </div>
 
-      {/* Tipo */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="type" className="text-sm font-medium text-gray-700">
-          Tipo
-        </label>
+        <label htmlFor="type" className={labelClass}>Tipo</label>
         <select
           id="type"
           name="type"
           defaultValue={defaultValues?.type ?? 'OTHER'}
-          className="rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
+          className={inputClass}
         >
           {Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
+            <option key={value} value={value}>{label}</option>
           ))}
         </select>
       </div>
 
-      {/* Recorrência anual */}
-      <div className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
+      <div className="flex items-center justify-between rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3">
         <div>
-          <p className="text-sm font-medium text-gray-700">Repetir todo ano</p>
-          <p className="text-xs text-gray-400">
-            Para aniversários e datas fixas
-          </p>
+          <p className={labelClass}>Repetir todo ano</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Para aniversários e datas fixas</p>
         </div>
         <label className="relative inline-flex cursor-pointer items-center">
           <input
@@ -93,23 +84,19 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
             defaultChecked={defaultValues?.recurring ?? true}
             className="peer sr-only"
           />
-          <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-indigo-600 peer-checked:after:translate-x-full" />
+          <div className="peer h-6 w-11 rounded-full bg-gray-300 dark:bg-gray-600 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:bg-indigo-600 peer-checked:after:translate-x-full" />
         </label>
       </div>
 
-      {/* Dias antes */}
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="daysBeforeAlert"
-          className="text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="daysBeforeAlert" className={labelClass}>
           Lembrar quantos dias antes?
         </label>
         <select
           id="daysBeforeAlert"
           name="daysBeforeAlert"
           defaultValue={defaultValues?.daysBeforeAlert ?? 1}
-          className="rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white"
+          className={inputClass}
         >
           <option value="0">No dia</option>
           <option value="1">1 dia antes</option>
@@ -121,10 +108,9 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
         </select>
       </div>
 
-      {/* Notas */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="notes" className="text-sm font-medium text-gray-700">
-          Notas <span className="text-gray-400">(opcional)</span>
+        <label htmlFor="notes" className={labelClass}>
+          Notas <span className="text-gray-400 dark:text-gray-500">(opcional)</span>
         </label>
         <textarea
           id="notes"
@@ -132,15 +118,14 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
           rows={3}
           defaultValue={defaultValues?.notes ?? ''}
           placeholder="Ex: Ligar às 8h, comprar presente..."
-          className="rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none"
+          className={`${inputClass} resize-none`}
         />
       </div>
 
-      {/* Botões */}
       <div className="flex gap-3 pt-2">
         <Link
           href="/dashboard"
-          className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex-1 rounded-xl border border-gray-400 dark:border-gray-600 px-4 py-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
           Cancelar
         </Link>
