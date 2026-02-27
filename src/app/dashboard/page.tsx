@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { getEvents, deleteEvent } from '@/lib/actions/events'
 import { EventType } from '@/generated/prisma'
-import { PushSubscribeButton } from '@/components/PushSubscribeButton'
+import { NotificationPrompt } from '@/components/NotificationPrompt'
 
 const TYPE_CONFIG: Record<EventType, { label: string; color: string }> = {
   BIRTHDAY: { label: 'Aniversário', color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' },
@@ -38,9 +38,6 @@ export default async function DashboardPage() {
                 ? 'Nenhum evento ainda'
                 : `${events.length} evento${events.length > 1 ? 's' : ''}`}
             </p>
-            <div className="mt-1.5">
-              <PushSubscribeButton />
-            </div>
           </div>
           <Link
             href="/dashboard/events/new"
@@ -120,6 +117,7 @@ export default async function DashboardPage() {
           })
         )}
       </div>
+      <NotificationPrompt />
     </main>
   )
 }
