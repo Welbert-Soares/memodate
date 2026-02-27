@@ -81,7 +81,7 @@ function buildCalendarDays(year: number, month: number) {
 
 export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
   const [filter, setFilter] = useState<EventType | 'ALL'>('ALL')
-  const [view, setView] = useState<'list' | 'calendar'>('list')
+  const [view, setView] = useState<'list' | 'calendar'>('calendar')
 
   const now = new Date()
   const [calYear, setCalYear] = useState(now.getFullYear())
