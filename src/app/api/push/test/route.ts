@@ -22,10 +22,7 @@ export async function GET() {
     )
   }
 
-  const payload = JSON.stringify({
-    title: 'Memodate 🗓️',
-    body: 'Olá Hanninha! Te amo muito! ❤️. Testando as notificações kkkk.',
-  })
+  const payload = JSON.stringify({ title: 'Memodate 🗓️', body: 'Teste de notificação do Memodate.', tag: 'test', url: '/dashboard' })
 
   let sent = 0
   for (const sub of subs) {

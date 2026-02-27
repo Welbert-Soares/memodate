@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { LuTrash2, LuPencil } from 'react-icons/lu'
 import { deleteEventById } from '@/lib/actions/events'
@@ -88,6 +88,12 @@ export function EventCard({
   const [isDeleting, setIsDeleting] = useState(false)
   const [, startTransition] = useTransition()
   const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current)
+    }
+  }, [])
 
   function snapTo(val: number) {
     if (val !== 0 && val !== baseOffsetRef.current) haptic(10)
@@ -231,6 +237,7 @@ export function EventCard({
         {/* Left action: Edit */}
         <button
           onClick={() => router.push(`/dashboard/events/${id}/edit`)}
+          aria-label="Editar evento"
           className="absolute left-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800 active:opacity-60 touch-manipulation"
         >
           <LuPencil size={24} className="text-yellow-500" />
@@ -239,6 +246,7 @@ export function EventCard({
         {/* Right action: Delete */}
         <button
           onClick={openDeleteSheet}
+          aria-label="Excluir evento"
           className="absolute right-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800 active:opacity-60 touch-manipulation"
         >
           <LuTrash2 size={24} className="text-red-500" />

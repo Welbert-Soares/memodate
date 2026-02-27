@@ -30,6 +30,7 @@ export function BottomNav() {
 
         <Link
           href="/dashboard/events/new"
+          aria-label="Criar evento"
           onClick={() => haptic(6)}
           className={`flex items-center justify-center w-20 h-full transition-colors active:scale-90 touch-manipulation ${isNew ? 'text-indigo-700 dark:text-indigo-400' : 'text-indigo-500 dark:text-indigo-400'}`}
         >

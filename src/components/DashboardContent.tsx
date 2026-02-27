@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { EventType } from '@/generated/prisma'
 import { EventCard } from '@/components/EventCard'
 import {
@@ -116,15 +116,18 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
   const presentTypes = Array.from(new Set(events.map((e) => e.type)))
 
   // Calendar: map day → events
-  const calendarCells = buildCalendarDays(calYear, calMonth)
-  const eventsByDay = new Map<number, ProcessedEvent[]>()
-  for (const event of events) {
-    const day = getEventDayInMonth(event, calYear, calMonth)
-    if (day !== null) {
-      if (!eventsByDay.has(day)) eventsByDay.set(day, [])
-      eventsByDay.get(day)!.push(event)
+  const calendarCells = useMemo(() => buildCalendarDays(calYear, calMonth), [calYear, calMonth])
+  const eventsByDay = useMemo(() => {
+    const map = new Map<number, ProcessedEvent[]>()
+    for (const event of events) {
+      const day = getEventDayInMonth(event, calYear, calMonth)
+      if (day !== null) {
+        if (!map.has(day)) map.set(day, [])
+        map.get(day)!.push(event)
+      }
     }
-  }
+    return map
+  }, [events, calYear, calMonth])
 
   const dayEvents = selectedDay ? (eventsByDay.get(selectedDay) ?? []) : []
 
@@ -153,12 +156,14 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
         <div className="flex rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
           <button
             onClick={() => { haptic(6); setView('list') }}
+            aria-label="Vista em lista"
             className={`px-3 py-1.5 text-sm transition-all active:scale-95 touch-manipulation ${view === 'list' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
           >
             <LuList size={16} />
           </button>
           <button
             onClick={() => { haptic(6); setView('calendar') }}
+            aria-label="Vista em calendário"
             className={`px-3 py-1.5 text-sm transition-all active:scale-95 touch-manipulation ${view === 'calendar' ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
           >
             <LuCalendarDays size={16} />
@@ -233,6 +238,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
             <div className="flex items-center justify-between mb-4">
               <button
                 onClick={prevMonth}
+                aria-label="Mês anterior"
                 className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90 transition-all touch-manipulation"
               >
                 <LuChevronLeft size={18} />
@@ -257,6 +263,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
               </div>
               <button
                 onClick={nextMonth}
+                aria-label="Próximo mês"
                 className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90 transition-all touch-manipulation"
               >
                 <LuChevronRight size={18} />
