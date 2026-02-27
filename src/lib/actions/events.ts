@@ -92,3 +92,25 @@ export async function deleteEvent(id: string) {
   revalidatePath('/dashboard')
   redirect('/dashboard?toast=deleted')
 }
+
+// Used by undo-delete flow in EventCard (no redirect — just revalidate)
+export async function deleteEventById(id: string): Promise<void> {
+  const session = await auth()
+  if (!session?.user?.id) return
+
+  await prisma.event.deleteMany({
+    where: { id, userId: session.user.id },
+  })
+
+  revalidatePath('/dashboard')
+}
+
+export async function updateTimezone(timezone: string): Promise<void> {
+  const session = await auth()
+  if (!session?.user?.id) return
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { timezone },
+  })
+}

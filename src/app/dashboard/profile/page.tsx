@@ -2,13 +2,23 @@ import Link from 'next/link'
 import { auth, signOut } from '@/auth'
 import { redirect } from 'next/navigation'
 import { getEvents } from '@/lib/actions/events'
+import { prisma } from '@/lib/prisma'
 import { LuChevronRight } from 'react-icons/lu'
+import { TimezoneSelector } from '@/components/TimezoneSelector'
 
 export default async function ProfilePage() {
   const session = await auth()
   if (!session) redirect('/login')
 
-  const events = await getEvents()
+  const [events, user] = await Promise.all([
+    getEvents(),
+    prisma.user.findUnique({
+      where: { id: session.user!.id! },
+      select: { timezone: true },
+    }),
+  ])
+
+  const timezone = user?.timezone ?? 'America/Sao_Paulo'
 
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900">
@@ -51,6 +61,11 @@ export default async function ProfilePage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400">evento{events.length !== 1 ? 's' : ''}</p>
               </div>
             </div>
+          </div>
+
+          {/* Timezone */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4">
+            <TimezoneSelector current={timezone} />
           </div>
 
           <Link

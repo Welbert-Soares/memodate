@@ -1,9 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { useRef, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { LuTrash2, LuPencil } from 'react-icons/lu'
-import { deleteEvent } from '@/lib/actions/events'
+import { deleteEventById } from '@/lib/actions/events'
 
 type EventCardProps = {
   id: string
@@ -56,20 +56,24 @@ export function EventCard({
   typeLabel,
   typeColor,
 }: EventCardProps) {
+  const router = useRouter()
+
   const REVEAL = 80
   const THRESHOLD = 44
 
-  // swipeOffset drives the card translateX
   const [swipeOffset, setSwipeOffset] = useState(0)
-  // base offset at gesture start, so continuing from a revealed position feels natural
   const baseOffsetRef = useRef(0)
   const startXRef = useRef<number | null>(null)
   const isDragging = useRef(false)
 
-  // Delete sheet state
+  // Delete sheet
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteVisible, setDeleteVisible] = useState(false)
-  const [isPending, startTransition] = useTransition()
+
+  // Undo delete
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [, startTransition] = useTransition()
+  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function snapTo(val: number) {
     baseOffsetRef.current = val
@@ -90,9 +94,18 @@ export function EventCard({
   }
 
   function handleConfirmDelete() {
-    startTransition(async () => {
-      await deleteEvent(id)
-    })
+    closeDeleteSheet()
+    setIsDeleting(true)
+    deleteTimerRef.current = setTimeout(() => {
+      startTransition(async () => {
+        await deleteEventById(id)
+      })
+    }, 4000)
+  }
+
+  function handleUndo() {
+    if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current)
+    setIsDeleting(false)
   }
 
   function onTouchStart(e: React.TouchEvent) {
@@ -104,7 +117,6 @@ export function EventCard({
     if (!isDragging.current || startXRef.current === null) return
     const dx = e.touches[0].clientX - startXRef.current
     const raw = baseOffsetRef.current + dx
-    // apply rubber-band resistance beyond REVEAL
     const clamped = Math.max(-REVEAL, Math.min(REVEAL, raw))
     setSwipeOffset(clamped)
   }
@@ -116,13 +128,18 @@ export function EventCard({
     const dx = e.changedTouches[0].clientX - startXRef.current
     startXRef.current = null
 
-    // tap while card is open → close
+    // Tap while open → close
     if (Math.abs(dx) < 6 && baseOffsetRef.current !== 0) {
       snapTo(0)
       return
     }
 
-    // snap to nearest stable position
+    // Tap on closed card → navigate to detail
+    if (Math.abs(dx) < 6 && baseOffsetRef.current === 0) {
+      router.push(`/dashboard/events/${id}`)
+      return
+    }
+
     if (swipeOffset <= -THRESHOLD) {
       snapTo(-REVEAL)
     } else if (swipeOffset >= THRESHOLD) {
@@ -132,17 +149,35 @@ export function EventCard({
     }
   }
 
+  // Undo bar shown while pending deletion
+  if (isDeleting) {
+    return (
+      <div className="rounded-2xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between gap-3">
+        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+          <span className="font-medium text-gray-700 dark:text-gray-300">{title}</span>{' '}
+          será excluído…
+        </p>
+        <button
+          onClick={handleUndo}
+          className="shrink-0 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors"
+        >
+          Desfazer
+        </button>
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="relative overflow-hidden rounded-2xl">
         {/* Left action: Edit */}
-        <Link
-          href={`/dashboard/events/${id}/edit`}
+        <button
+          onClick={() => router.push(`/dashboard/events/${id}/edit`)}
           className="absolute left-0 top-0 bottom-0 w-[80px] flex flex-col items-center justify-center gap-1 bg-indigo-500 text-white"
         >
           <LuPencil size={22} />
           <span className="text-[10px] font-semibold">Editar</span>
-        </Link>
+        </button>
 
         {/* Right action: Delete */}
         <button
@@ -164,16 +199,14 @@ export function EventCard({
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4 relative"
+          className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4 relative cursor-pointer"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
                 {title}
               </span>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColor}`}
-              >
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColor}`}>
                 {typeLabel}
               </span>
             </div>
@@ -225,14 +258,12 @@ export function EventCard({
               <div className="flex flex-col gap-3">
                 <button
                   onClick={handleConfirmDelete}
-                  disabled={isPending}
-                  className="w-full rounded-xl bg-red-500 px-4 py-3.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors disabled:opacity-60"
+                  className="w-full rounded-xl bg-red-500 px-4 py-3.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
                 >
-                  {isPending ? 'Excluindo...' : 'Sim, excluir'}
+                  Sim, excluir
                 </button>
                 <button
                   onClick={closeDeleteSheet}
-                  disabled={isPending}
                   className="w-full rounded-xl px-4 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancelar

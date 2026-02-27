@@ -2,6 +2,25 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { webpush } from '@/lib/webpush'
 
+function getTodayInTimezone(tz: string): Date {
+  const now = new Date()
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(now)
+    const y = Number(parts.find((p) => p.type === 'year')!.value)
+    const m = Number(parts.find((p) => p.type === 'month')!.value) - 1
+    const d = Number(parts.find((p) => p.type === 'day')!.value)
+    return new Date(Date.UTC(y, m, d))
+  } catch {
+    // Fallback to UTC if timezone is invalid
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  }
+}
+
 function subtractDays(date: Date, days: number): Date {
   const result = new Date(date)
   result.setUTCDate(result.getUTCDate() - days)
@@ -23,7 +42,6 @@ function shouldNotifyToday(
   const d = new Date(event.date)
 
   if (event.recurring) {
-    // Check current year and next year to handle year-boundary cases
     for (const year of [today.getUTCFullYear(), today.getUTCFullYear() + 1]) {
       const occurrence = new Date(
         Date.UTC(year, d.getUTCMonth(), d.getUTCDate()),
@@ -56,57 +74,50 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const now = new Date()
-  const today = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
-
-  const events = await prisma.event.findMany({
+  const users = await prisma.user.findMany({
     include: {
-      user: { include: { pushSubscriptions: true } },
+      events: true,
+      pushSubscriptions: true,
     },
   })
-
-  const toNotify = events.filter((e) => shouldNotifyToday(e, today))
 
   let sent = 0
   let removed = 0
 
-  for (const event of toNotify) {
-    const subs = event.user.pushSubscriptions
-    if (subs.length === 0) continue
+  for (const user of users) {
+    if (user.pushSubscriptions.length === 0) continue
 
-    const payload = JSON.stringify({
-      title: 'Memodate 🗓️',
-      body: buildMessage(event),
-    })
+    const today = getTodayInTimezone(user.timezone)
+    const toNotify = user.events.filter((e) => shouldNotifyToday(e, today))
 
-    for (const sub of subs) {
-      try {
-        await webpush.sendNotification(
-          {
-            endpoint: sub.endpoint,
-            keys: { p256dh: sub.p256dh, auth: sub.auth },
-          },
-          payload,
-        )
-        sent++
-      } catch (err: unknown) {
-        const status = (err as { statusCode?: number })?.statusCode
-        if (status === 410 || status === 404) {
-          await prisma.pushSubscription.deleteMany({
-            where: { endpoint: sub.endpoint },
-          })
-          removed++
+    for (const event of toNotify) {
+      const payload = JSON.stringify({
+        title: 'Memodate 🗓️',
+        body: buildMessage(event),
+      })
+
+      for (const sub of user.pushSubscriptions) {
+        try {
+          await webpush.sendNotification(
+            {
+              endpoint: sub.endpoint,
+              keys: { p256dh: sub.p256dh, auth: sub.auth },
+            },
+            payload,
+          )
+          sent++
+        } catch (err: unknown) {
+          const status = (err as { statusCode?: number })?.statusCode
+          if (status === 410 || status === 404) {
+            await prisma.pushSubscription.deleteMany({
+              where: { endpoint: sub.endpoint },
+            })
+            removed++
+          }
         }
       }
     }
   }
 
-  return NextResponse.json({
-    today: today.toISOString(),
-    events: toNotify.length,
-    sent,
-    removed,
-  })
+  return NextResponse.json({ sent, removed })
 }
