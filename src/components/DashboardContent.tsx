@@ -86,7 +86,7 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
   const now = new Date()
   const [calYear, setCalYear] = useState(now.getFullYear())
   const [calMonth, setCalMonth] = useState(now.getMonth())
-  const [selectedDay, setSelectedDay] = useState<number | null>(null)
+  const [selectedDay, setSelectedDay] = useState<number | null>(now.getDate())
 
   const todayYear = now.getFullYear()
   const todayMonth = now.getMonth()
