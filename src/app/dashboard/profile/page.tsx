@@ -3,8 +3,15 @@ import { auth, signOut } from '@/auth'
 import { redirect } from 'next/navigation'
 import { getEvents } from '@/lib/actions/events'
 import { prisma } from '@/lib/prisma'
-import { LuChevronRight } from 'react-icons/lu'
+import {
+  LuChevronRight,
+  LuCalendarDays,
+  LuBell,
+  LuClock,
+  LuLogOut,
+} from 'react-icons/lu'
 import { TimezoneSelector } from '@/components/TimezoneSelector'
+import { ScrollArea } from '@/components/ScrollArea'
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -20,8 +27,18 @@ export default async function ProfilePage() {
 
   const timezone = user?.timezone ?? 'America/Sao_Paulo'
 
+  const now = new Date()
+  const upcomingCount = events.filter((e) => {
+    const d = new Date(e.date)
+    const diff = Math.ceil(
+      (d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    )
+    return diff >= 0 && diff <= 30
+  }).length
+
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
       <div
         className="shrink-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-4 py-5"
         style={{ paddingTop: 'max(1.25rem, env(safe-area-inset-top))' }}
@@ -33,9 +50,10 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-3">
-          {/* Avatar + info */}
+      <ScrollArea storageKey="profile">
+        <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-6">
+
+          {/* Avatar card */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-6 py-6 flex flex-col items-center gap-3">
             {session.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -50,67 +68,115 @@ export default async function ProfilePage() {
               </div>
             )}
             <div className="text-center">
-              <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
+              <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg leading-snug">
                 {session.user?.name}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 {session.user?.email}
               </p>
             </div>
-            <div className="flex gap-4 mt-1">
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
+
+            {/* Stats row */}
+            <div className="w-full mt-1 pt-4 border-t border-gray-100 dark:border-gray-700 flex divide-x divide-gray-100 dark:divide-gray-700">
+              <div className="flex-1 text-center">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {events.length}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   evento{events.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+              <div className="flex-1 text-center">
+                <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                  {upcomingCount}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  próximos 30 dias
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Timezone */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4">
-            <TimezoneSelector current={timezone} />
+          {/* Preferences section */}
+          <div className="flex flex-col gap-1">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-1 mb-1">
+              Preferências
+            </p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="px-4 py-4 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+                  <LuClock size={16} className="text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <TimezoneSelector current={timezone} />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <Link
-            href="/dashboard"
-            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between active:bg-gray-50 dark:active:bg-gray-700 transition-colors touch-manipulation"
-          >
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Ver todos os eventos
-            </span>
-            <LuChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
-          </Link>
+          {/* Navigation section */}
+          <div className="flex flex-col gap-1">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-1 mb-1">
+              Atalhos
+            </p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
+              <Link
+                href="/dashboard"
+                className="px-4 py-4 flex items-center gap-3 active:bg-gray-50 dark:active:bg-gray-700 transition-colors touch-manipulation"
+              >
+                <div className="w-8 h-8 rounded-xl bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                  <LuCalendarDays size={16} className="text-green-600 dark:text-green-400" />
+                </div>
+                <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Ver todos os eventos
+                </span>
+                <LuChevronRight size={16} className="text-gray-400 dark:text-gray-500 shrink-0" />
+              </Link>
 
-          <Link
-            href="/dashboard/settings"
-            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between active:bg-gray-50 dark:active:bg-gray-700 transition-colors touch-manipulation"
-          >
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Configurações de notificações
-            </span>
-            <LuChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
-          </Link>
+              <Link
+                href="/dashboard/settings"
+                className="px-4 py-4 flex items-center gap-3 active:bg-gray-50 dark:active:bg-gray-700 transition-colors touch-manipulation"
+              >
+                <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+                  <LuBell size={16} className="text-purple-600 dark:text-purple-400" />
+                </div>
+                <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Configurações de notificações
+                </span>
+                <LuChevronRight size={16} className="text-gray-400 dark:text-gray-500 shrink-0" />
+              </Link>
+            </div>
+          </div>
 
-          {/* Sign out */}
-          <form
-            action={async () => {
-              'use server'
-              await signOut({ redirectTo: '/login' })
-            }}
-            className="mt-2"
-          >
-            <button
-              type="submit"
-              className="w-full bg-white dark:bg-gray-800 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-sm px-4 py-4 text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 active:scale-[0.97] transition-all touch-manipulation text-center"
-            >
-              Sair da conta
-            </button>
-          </form>
+          {/* Danger zone */}
+          <div className="flex flex-col gap-1">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide px-1 mb-1">
+              Conta
+            </p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+              <form
+                action={async () => {
+                  'use server'
+                  await signOut({ redirectTo: '/login' })
+                }}
+              >
+                <button
+                  type="submit"
+                  className="w-full px-4 py-4 flex items-center gap-3 active:bg-red-50 dark:active:bg-red-900/10 transition-colors touch-manipulation"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                    <LuLogOut size={16} className="text-red-500 dark:text-red-400" />
+                  </div>
+                  <span className="flex-1 text-left text-sm font-medium text-red-500 dark:text-red-400">
+                    Sair da conta
+                  </span>
+                </button>
+              </form>
+            </div>
+          </div>
+
         </div>
-      </div>
+      </ScrollArea>
     </div>
   )
 }
