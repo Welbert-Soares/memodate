@@ -1,11 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist } from 'next/font/google'
 import './globals.css'
-
-const geist = Geist({
-  variable: '--font-geist',
-  subsets: ['latin'],
-})
 
 export const metadata: Metadata = {
   title: 'Memodate',
@@ -32,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${geist.variable} antialiased`}>
+      <body className="antialiased">
         {children}
         <script
           dangerouslySetInnerHTML={{

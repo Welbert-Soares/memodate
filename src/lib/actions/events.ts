@@ -50,7 +50,7 @@ export async function createEvent(formData: FormData) {
   })
 
   revalidatePath('/dashboard')
-  redirect('/dashboard')
+  redirect('/dashboard?toast=saved')
 }
 
 export async function updateEvent(id: string, formData: FormData) {
@@ -78,7 +78,7 @@ export async function updateEvent(id: string, formData: FormData) {
   })
 
   revalidatePath('/dashboard')
-  redirect('/dashboard')
+  redirect('/dashboard?toast=saved')
 }
 
 export async function deleteEvent(id: string) {
@@ -90,4 +90,5 @@ export async function deleteEvent(id: string) {
   })
 
   revalidatePath('/dashboard')
+  redirect('/dashboard?toast=deleted')
 }

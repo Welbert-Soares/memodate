@@ -1,9 +1,12 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
-import { getEvents, deleteEvent } from '@/lib/actions/events'
+import { getEvents } from '@/lib/actions/events'
 import { EventType } from '@/generated/prisma'
 import { NotificationPrompt } from '@/components/NotificationPrompt'
+import { EventCard } from '@/components/EventCard'
+import { Toast } from '@/components/Toast'
 
 const TYPE_CONFIG: Record<EventType, { label: string; color: string }> = {
   BIRTHDAY: { label: 'Aniversário', color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' },
@@ -19,11 +22,37 @@ function formatDate(date: Date) {
   })
 }
 
+function daysUntil(date: Date, recurring: boolean): number {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const d = new Date(date)
+
+  if (recurring) {
+    let next = new Date(today.getFullYear(), d.getMonth(), d.getDate())
+    if (next < today) {
+      next = new Date(today.getFullYear() + 1, d.getMonth(), d.getDate())
+    }
+    return Math.round((next.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  }
+
+  d.setHours(0, 0, 0, 0)
+  return Math.round((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+}
+
 export default async function DashboardPage() {
   const session = await auth()
   if (!session) redirect('/login')
 
-  const events = await getEvents()
+  const rawEvents = await getEvents()
+  const events = rawEvents
+    .map((e) => ({ ...e, days: daysUntil(e.date, e.recurring) }))
+    .sort((a, b) => {
+      const aFuture = a.recurring || a.days >= 0
+      const bFuture = b.recurring || b.days >= 0
+      if (aFuture && !bFuture) return -1
+      if (!aFuture && bFuture) return 1
+      return a.days - b.days
+    })
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -39,13 +68,22 @@ export default async function DashboardPage() {
                 : `${events.length} evento${events.length > 1 ? 's' : ''}`}
             </p>
           </div>
-          <Link
-            href="/dashboard/events/new"
-            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-          >
-            <span className="text-lg leading-none">+</span>
-            Novo
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/settings"
+              className="rounded-xl p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Configurações"
+            >
+              ⚙️
+            </Link>
+            <Link
+              href="/dashboard/events/new"
+              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+            >
+              <span className="text-lg leading-none">+</span>
+              Novo
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -67,57 +105,25 @@ export default async function DashboardPage() {
           events.map((event) => {
             const typeConfig = TYPE_CONFIG[event.type]
             return (
-              <div
+              <EventCard
                 key={event.id}
-                className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4 flex items-start gap-4"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {event.title}
-                    </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeConfig.color}`}>
-                      {typeConfig.label}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                    {formatDate(event.date)}
-                    {event.recurring && ' · repete todo ano'}
-                  </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                    Lembrete:{' '}
-                    {event.daysBeforeAlert === 0
-                      ? 'no dia'
-                      : `${event.daysBeforeAlert} dia${event.daysBeforeAlert > 1 ? 's' : ''} antes`}
-                  </p>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <Link
-                    href={`/dashboard/events/${event.id}/edit`}
-                    className="rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    Editar
-                  </Link>
-                  <form
-                    action={async () => {
-                      'use server'
-                      await deleteEvent(event.id)
-                    }}
-                  >
-                    <button
-                      type="submit"
-                      className="rounded-lg border border-red-100 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
-                    >
-                      Excluir
-                    </button>
-                  </form>
-                </div>
-              </div>
+                id={event.id}
+                title={event.title}
+                formattedDate={formatDate(event.date)}
+                recurring={event.recurring}
+                daysBeforeAlert={event.daysBeforeAlert}
+                days={event.days}
+                typeLabel={typeConfig.label}
+                typeColor={typeConfig.color}
+              />
             )
           })
         )}
       </div>
       <NotificationPrompt />
+      <Suspense>
+        <Toast />
+      </Suspense>
     </main>
   )
 }

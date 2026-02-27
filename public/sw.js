@@ -1,14 +1,13 @@
 // Service Worker — Memodate
-// Etapa 2: esqueleto básico para registro do PWA
-// Etapa 5: receberá o handler de push notifications
 
-const CACHE_NAME = 'memodate-v1'
+const CACHE_NAME = 'memodate-v2'
+const OFFLINE_URL = '/offline'
 
-// Install — abre o cache e pré-carrega recursos essenciais
+// Install — pré-carrega recursos essenciais e a página offline
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(['/'])
+      return cache.addAll(['/', OFFLINE_URL])
     }),
   )
   self.skipWaiting()
@@ -30,22 +29,38 @@ self.addEventListener('activate', (event) => {
   self.clients.claim()
 })
 
-// Fetch — network first, fallback para cache
+// Fetch — network first, fallback para cache, fallback para offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
+
+  // Não interceptar chamadas de API nem chrome-extension
+  const url = new URL(event.request.url)
+  if (url.pathname.startsWith('/api/') || url.protocol === 'chrome-extension:') return
+
+  const isNavigation = event.request.mode === 'navigate'
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const clone = response.clone()
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        // Só cachear respostas válidas de mesma origem
+        if (response.ok && url.origin === self.location.origin) {
+          const clone = response.clone()
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        }
         return response
       })
-      .catch(() => caches.match(event.request)),
+      .catch(async () => {
+        const cached = await caches.match(event.request)
+        if (cached) return cached
+        if (isNavigation) {
+          return caches.match(OFFLINE_URL)
+        }
+        return new Response('', { status: 503 })
+      }),
   )
 })
 
-// Push — será implementado na Etapa 5
+// Push — exibe a notificação recebida
 self.addEventListener('push', (event) => {
   if (!event.data) return
 
@@ -72,7 +87,7 @@ self.addEventListener('notificationclick', (event) => {
         if (clients.length > 0) {
           return clients[0].focus()
         }
-        return self.clients.openWindow('/')
+        return self.clients.openWindow('/dashboard')
       }),
   )
 })
