@@ -4,16 +4,20 @@ import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { LuTrash2, LuPencil } from 'react-icons/lu'
 import { deleteEventById } from '@/lib/actions/events'
+import { EventType } from '@/generated/prisma'
+import { EventDetailModal } from '@/components/EventDetailModal'
 
 type EventCardProps = {
   id: string
   title: string
   formattedDate: string
+  type: EventType
   recurring: boolean
   daysBeforeAlert: number
   days: number
   typeLabel: string
   typeColor: string
+  notes: string | null
 }
 
 function DaysLabel({ days }: { days: number }) {
@@ -50,11 +54,13 @@ export function EventCard({
   id,
   title,
   formattedDate,
+  type,
   recurring,
   daysBeforeAlert,
   days,
   typeLabel,
   typeColor,
+  notes,
 }: EventCardProps) {
   const router = useRouter()
 
@@ -65,6 +71,9 @@ export function EventCard({
   const baseOffsetRef = useRef(0)
   const startXRef = useRef<number | null>(null)
   const isDragging = useRef(false)
+
+  // Detail modal
+  const [detailOpen, setDetailOpen] = useState(false)
 
   // Delete sheet
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -91,6 +100,11 @@ export function EventCard({
   function closeDeleteSheet() {
     setDeleteVisible(false)
     setTimeout(() => setDeleteOpen(false), 300)
+  }
+
+  function handleDeleteRequest() {
+    setDetailOpen(false)
+    setTimeout(() => openDeleteSheet(), 320)
   }
 
   function handleConfirmDelete() {
@@ -134,9 +148,9 @@ export function EventCard({
       return
     }
 
-    // Tap on closed card → navigate to detail
+    // Tap on closed card → open detail modal
     if (Math.abs(dx) < 6 && baseOffsetRef.current === 0) {
-      router.push(`/dashboard/events/${id}`)
+      setDetailOpen(true)
       return
     }
 
@@ -149,12 +163,13 @@ export function EventCard({
     }
   }
 
-  // Undo bar shown while pending deletion
   if (isDeleting) {
     return (
       <div className="rounded-2xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between gap-3">
         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-          <span className="font-medium text-gray-700 dark:text-gray-300">{title}</span>{' '}
+          <span className="font-medium text-gray-700 dark:text-gray-300">
+            {title}
+          </span>{' '}
           será excluído…
         </p>
         <button
@@ -170,7 +185,7 @@ export function EventCard({
   return (
     <>
       <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
-        {/* Left action: Edit (same bg as card — only icon is visible) */}
+        {/* Left action: Edit */}
         <button
           onClick={() => router.push(`/dashboard/events/${id}/edit`)}
           className="absolute left-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800"
@@ -178,7 +193,7 @@ export function EventCard({
           <LuPencil size={24} className="text-yellow-500" />
         </button>
 
-        {/* Right action: Delete (same bg as card — only icon is visible) */}
+        {/* Right action: Delete */}
         <button
           onClick={openDeleteSheet}
           className="absolute right-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800"
@@ -204,7 +219,9 @@ export function EventCard({
               <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
                 {title}
               </span>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColor}`}>
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColor}`}
+              >
                 {typeLabel}
               </span>
             </div>
@@ -225,7 +242,19 @@ export function EventCard({
         </div>
       </div>
 
-      {/* Delete confirmation sheet */}
+      <EventDetailModal
+        isOpen={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        onDeleteRequest={handleDeleteRequest}
+        id={id}
+        title={title}
+        formattedDate={formattedDate}
+        type={type}
+        recurring={recurring}
+        daysBeforeAlert={daysBeforeAlert}
+        notes={notes}
+      />
+
       {deleteOpen && (
         <>
           <div
@@ -244,7 +273,10 @@ export function EventCard({
               <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6" />
               <div className="flex flex-col items-center gap-2 text-center mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                  <LuTrash2 size={24} className="text-red-500 dark:text-red-400" />
+                  <LuTrash2
+                    size={24}
+                    className="text-red-500 dark:text-red-400"
+                  />
                 </div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   Excluir evento?

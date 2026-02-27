@@ -80,6 +80,7 @@ export default async function DashboardPage() {
         typeLabel: tc.label,
         typeColor: tc.color,
         typeDot: tc.dot,
+        notes: e.notes,
       }
     })
     .sort((a, b) => {

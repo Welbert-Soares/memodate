@@ -23,6 +23,7 @@ export type ProcessedEvent = {
   typeLabel: string
   typeColor: string
   typeDot: string // Tailwind bg- class for calendar dot
+  notes: string | null
 }
 
 const TYPE_FILTERS: { value: EventType | 'ALL'; label: string }[] = [
@@ -190,11 +191,13 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                 id={event.id}
                 title={event.title}
                 formattedDate={event.formattedDate}
+                type={event.type}
                 recurring={event.recurring}
                 daysBeforeAlert={event.daysBeforeAlert}
                 days={event.days}
                 typeLabel={event.typeLabel}
                 typeColor={event.typeColor}
+                notes={event.notes}
               />
             ))
           )}
@@ -306,11 +309,13 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                     id={event.id}
                     title={event.title}
                     formattedDate={event.formattedDate}
+                    type={event.type}
                     recurring={event.recurring}
                     daysBeforeAlert={event.daysBeforeAlert}
                     days={event.days}
                     typeLabel={event.typeLabel}
                     typeColor={event.typeColor}
+                    notes={event.notes}
                   />
                 ))
               )}
