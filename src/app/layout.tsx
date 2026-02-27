@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Lembretes de datas importantes',
   icons: {
     icon: [{ url: '/icone_memodate.webp', type: 'image/webp' }],
-    apple: [{ url: '/icone_memodate.webp', type: 'image/webp' }],
+    apple: [{ url: '/apple-icon.png', type: 'image/png' }],
     shortcut: '/icone_memodate.webp',
   },
   appleWebApp: {
