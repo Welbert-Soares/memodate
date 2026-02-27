@@ -5,8 +5,9 @@ export default function LoginPage() {
     <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 flex flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-2">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">M</span>
+          <div className="w-14 h-14 rounded-2xl overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icone_memodate.webp" alt="Memodate" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Memodate</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
