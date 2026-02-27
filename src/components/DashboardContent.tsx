@@ -14,7 +14,7 @@ import Link from 'next/link'
 export type ProcessedEvent = {
   id: string
   title: string
-  dateMs: number      // Date.getTime() — serializable across RSC boundary
+  dateMs: number // Date.getTime() — serializable across RSC boundary
   type: EventType
   recurring: boolean
   daysBeforeAlert: number
@@ -22,7 +22,7 @@ export type ProcessedEvent = {
   formattedDate: string
   typeLabel: string
   typeColor: string
-  typeDot: string     // Tailwind bg- class for calendar dot
+  typeDot: string // Tailwind bg- class for calendar dot
 }
 
 const TYPE_FILTERS: { value: EventType | 'ALL'; label: string }[] = [
@@ -36,8 +36,18 @@ const TYPE_FILTERS: { value: EventType | 'ALL'; label: string }[] = [
 const WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
 
 const PT_MONTHS = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
 ]
 
 // Returns the event date for a given year/month (recurring uses any year
@@ -103,13 +113,17 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
 
   function prevMonth() {
     setSelectedDay(null)
-    if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11) }
-    else setCalMonth(m => m - 1)
+    if (calMonth === 0) {
+      setCalYear((y) => y - 1)
+      setCalMonth(11)
+    } else setCalMonth((m) => m - 1)
   }
   function nextMonth() {
     setSelectedDay(null)
-    if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0) }
-    else setCalMonth(m => m + 1)
+    if (calMonth === 11) {
+      setCalYear((y) => y + 1)
+      setCalMonth(0)
+    } else setCalMonth((m) => m + 1)
   }
 
   return (
@@ -144,19 +158,21 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
           >
             Todos
           </button>
-          {TYPE_FILTERS.slice(1).filter(f => presentTypes.includes(f.value as EventType)).map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setFilter(f.value)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                filter === f.value
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+          {TYPE_FILTERS.slice(1)
+            .filter((f) => presentTypes.includes(f.value as EventType))
+            .map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setFilter(f.value)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  filter === f.value
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
         </div>
       </div>
 
@@ -243,10 +259,10 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                       isSelected
                         ? 'bg-indigo-600'
                         : isToday
-                        ? 'bg-indigo-50 dark:bg-indigo-900/20'
-                        : hasEvents
-                        ? 'hover:bg-gray-50 dark:hover:bg-gray-700'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                          ? 'bg-indigo-50 dark:bg-indigo-900/20'
+                          : hasEvents
+                            ? 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
                     <span
@@ -254,8 +270,8 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                         isSelected
                           ? 'font-bold text-white'
                           : isToday
-                          ? 'font-bold text-indigo-600 dark:text-indigo-400'
-                          : 'text-gray-700 dark:text-gray-300'
+                            ? 'font-bold text-indigo-600 dark:text-indigo-400'
+                            : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {day}
