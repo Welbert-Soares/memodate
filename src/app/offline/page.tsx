@@ -1,9 +1,11 @@
 'use client'
 
+import { LuWifiOff } from 'react-icons/lu'
+
 export default function OfflinePage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-4 text-center">
-      <div className="text-5xl mb-4">📡</div>
+      <LuWifiOff size={56} className="text-gray-300 dark:text-gray-600 mb-4" />
       <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
         Sem conexão
       </h1>

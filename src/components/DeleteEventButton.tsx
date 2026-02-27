@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { LuTrash2 } from 'react-icons/lu'
 import { deleteEvent } from '@/lib/actions/events'
 
 export function DeleteEventButton({
@@ -57,7 +58,7 @@ export function DeleteEventButton({
               <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6" />
               <div className="flex flex-col items-center gap-2 text-center mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                  <span className="text-2xl">🗑️</span>
+                  <LuTrash2 size={24} className="text-red-500 dark:text-red-400" />
                 </div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   Excluir evento?

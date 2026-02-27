@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { LuBell } from 'react-icons/lu'
 
 const DISMISSED_KEY = 'memodate-notif-dismissed'
 
@@ -91,7 +92,7 @@ export function NotificationPrompt() {
 
           <div className="flex flex-col items-center gap-4 text-center mb-6">
             <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-md">
-              <span className="text-white text-2xl">🔔</span>
+              <LuBell size={28} className="text-white" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">

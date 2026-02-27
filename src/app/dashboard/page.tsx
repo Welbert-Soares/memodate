@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { getEvents } from '@/lib/actions/events'
 import { EventType } from '@/generated/prisma'
+import { LuCalendar } from 'react-icons/lu'
 import { NotificationPrompt } from '@/components/NotificationPrompt'
 import { EventCard } from '@/components/EventCard'
 import { Toast } from '@/components/Toast'
@@ -55,8 +56,12 @@ export default async function DashboardPage() {
     })
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-4 py-5">
+    <main className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900">
+      {/* Static header */}
+      <div
+        className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-4 py-5"
+        style={{ paddingTop: 'max(1.25rem, env(safe-area-inset-top))' }}
+      >
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -88,38 +93,41 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-3">
-        {events.length === 0 ? (
-          <div className="text-center py-16 flex flex-col items-center gap-3">
-            <div className="text-5xl">📅</div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Adicione seu primeiro evento para começar a receber lembretes.
-            </p>
-            <Link
-              href="/dashboard/events/new"
-              className="mt-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-            >
-              Criar evento
-            </Link>
-          </div>
-        ) : (
-          events.map((event) => {
-            const typeConfig = TYPE_CONFIG[event.type]
-            return (
-              <EventCard
-                key={event.id}
-                id={event.id}
-                title={event.title}
-                formattedDate={formatDate(event.date)}
-                recurring={event.recurring}
-                daysBeforeAlert={event.daysBeforeAlert}
-                days={event.days}
-                typeLabel={typeConfig.label}
-                typeColor={typeConfig.color}
-              />
-            )
-          })
-        )}
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-3">
+          {events.length === 0 ? (
+            <div className="text-center py-16 flex flex-col items-center gap-3">
+              <LuCalendar size={48} className="text-gray-300 dark:text-gray-600" />
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Adicione seu primeiro evento para começar a receber lembretes.
+              </p>
+              <Link
+                href="/dashboard/events/new"
+                className="mt-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+              >
+                Criar evento
+              </Link>
+            </div>
+          ) : (
+            events.map((event) => {
+              const typeConfig = TYPE_CONFIG[event.type]
+              return (
+                <EventCard
+                  key={event.id}
+                  id={event.id}
+                  title={event.title}
+                  formattedDate={formatDate(event.date)}
+                  recurring={event.recurring}
+                  daysBeforeAlert={event.daysBeforeAlert}
+                  days={event.days}
+                  typeLabel={typeConfig.label}
+                  typeColor={typeConfig.color}
+                />
+              )
+            })
+          )}
+        </div>
       </div>
       <NotificationPrompt />
       <Suspense>
