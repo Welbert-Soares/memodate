@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { EventType } from '@/generated/prisma'
 
 const EVENT_TYPE_LABELS: Record<EventType, string> = {
@@ -26,52 +26,85 @@ type EventFormProps = {
 const inputClass =
   'rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed'
 
+const inputErrorClass =
+  'rounded-xl border border-red-400 dark:border-red-500 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed'
+
 const labelClass = 'text-sm font-medium text-gray-700 dark:text-gray-300'
 
 export function EventForm({ action, defaultValues }: EventFormProps) {
   const [isPending, startTransition] = useTransition()
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const defaultDate = defaultValues?.date
     ? new Date(defaultValues.date).toISOString().split('T')[0]
     : ''
 
   function handleSubmit(formData: FormData) {
+    const title = ((formData.get('title') as string) ?? '').trim()
+    const date = (formData.get('date') as string) ?? ''
+
+    const newErrors: Record<string, string> = {}
+
+    if (!title) newErrors.title = 'Informe o título do evento.'
+    else if (title.length < 2) newErrors.title = 'Título deve ter ao menos 2 letras.'
+
+    if (!date) newErrors.date = 'Informe a data do evento.'
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
+    setErrors({})
     startTransition(async () => {
       await action(formData)
     })
   }
 
   return (
-    <form action={handleSubmit} className={`flex flex-col gap-5 transition-opacity ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
+    <form
+      action={handleSubmit}
+      className={`flex flex-col gap-5 transition-opacity ${isPending ? 'opacity-60 pointer-events-none' : ''}`}
+    >
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="title" className={labelClass}>Título</label>
+        <label htmlFor="title" className={labelClass}>
+          Título
+        </label>
         <input
           id="title"
           name="title"
           type="text"
-          required
           disabled={isPending}
           defaultValue={defaultValues?.title}
           placeholder="Ex: Aniversário da mamãe"
-          className={inputClass}
+          className={errors.title ? inputErrorClass : inputClass}
         />
+        {errors.title && (
+          <p className="text-xs text-red-500 dark:text-red-400">{errors.title}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="date" className={labelClass}>Data</label>
+        <label htmlFor="date" className={labelClass}>
+          Data
+        </label>
         <input
           id="date"
           name="date"
           type="date"
-          required
           disabled={isPending}
           defaultValue={defaultDate}
-          className={inputClass}
+          className={errors.date ? inputErrorClass : inputClass}
         />
+        {errors.date && (
+          <p className="text-xs text-red-500 dark:text-red-400">{errors.date}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="type" className={labelClass}>Tipo</label>
+        <label htmlFor="type" className={labelClass}>
+          Tipo
+        </label>
         <select
           id="type"
           name="type"
@@ -80,7 +113,9 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
           className={inputClass}
         >
           {Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
+            <option key={value} value={value}>
+              {label}
+            </option>
           ))}
         </select>
       </div>
@@ -88,7 +123,9 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
       <div className="flex items-center justify-between rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3">
         <div>
           <p className={labelClass}>Repetir todo ano</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Para aniversários e datas fixas</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Para aniversários e datas fixas
+          </p>
         </div>
         <label className="relative inline-flex cursor-pointer items-center">
           <input
@@ -126,7 +163,8 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="notes" className={labelClass}>
-          Notas <span className="text-gray-400 dark:text-gray-500">(opcional)</span>
+          Notas{' '}
+          <span className="text-gray-400 dark:text-gray-500">(opcional)</span>
         </label>
         <textarea
           id="notes"
