@@ -15,7 +15,9 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
   overscroll-behavior: none;
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -26,14 +28,18 @@ body {
 }
 
 /* Prevent iOS Safari from zooming on input focus (requires font-size >= 16px) */
-input, select, textarea {
+input,
+select,
+textarea {
   font-size: max(16px, 1em);
 }
 
 /* Hide scrollbar on all platforms while keeping scroll functionality */
+/* Prevent overscroll bounce/spring effect on all scrollable elements */
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior: none;
 }
 *::-webkit-scrollbar {
   display: none;
