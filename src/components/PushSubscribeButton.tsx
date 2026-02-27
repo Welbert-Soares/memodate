@@ -13,7 +13,12 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray
 }
 
-type Status = 'loading' | 'unsupported' | 'denied' | 'subscribed' | 'unsubscribed'
+type Status =
+  | 'loading'
+  | 'unsupported'
+  | 'denied'
+  | 'subscribed'
+  | 'unsubscribed'
 
 export function PushSubscribeButton() {
   const [status, setStatus] = useState<Status>('loading')
@@ -68,7 +73,15 @@ export function PushSubscribeButton() {
     setStatus('unsubscribed')
   }
 
-  if (status === 'loading' || status === 'unsupported') return null
+  if (status === 'loading') return null
+
+  if (status === 'unsupported') {
+    return (
+      <p className="text-xs text-gray-400 dark:text-gray-500">
+        Adicione à tela inicial para ativar notificações.
+      </p>
+    )
+  }
 
   if (status === 'denied') {
     return (
@@ -87,7 +100,9 @@ export function PushSubscribeButton() {
           : 'border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
       }`}
     >
-      {status === 'subscribed' ? '🔔 Notificações ativas' : '🔕 Ativar notificações'}
+      {status === 'subscribed'
+        ? '🔔 Notificações ativas'
+        : '🔕 Ativar notificações'}
     </button>
   )
 }
