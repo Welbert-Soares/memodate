@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRef, useState, useTransition } from 'react'
-import { LuTrash2 } from 'react-icons/lu'
+import { LuTrash2, LuPencil } from 'react-icons/lu'
 import { deleteEvent } from '@/lib/actions/events'
 
 type EventCardProps = {
@@ -56,20 +56,28 @@ export function EventCard({
   typeLabel,
   typeColor,
 }: EventCardProps) {
-  // Swipe state
+  const REVEAL = 80
+  const THRESHOLD = 44
+
+  // swipeOffset drives the card translateX
   const [swipeOffset, setSwipeOffset] = useState(0)
+  // base offset at gesture start, so continuing from a revealed position feels natural
+  const baseOffsetRef = useRef(0)
   const startXRef = useRef<number | null>(null)
   const isDragging = useRef(false)
-  const REVEAL = 72
-  const THRESHOLD = 48
 
   // Delete sheet state
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteVisible, setDeleteVisible] = useState(false)
   const [isPending, startTransition] = useTransition()
 
+  function snapTo(val: number) {
+    baseOffsetRef.current = val
+    setSwipeOffset(val)
+  }
+
   function openDeleteSheet() {
-    setSwipeOffset(0)
+    snapTo(0)
     setDeleteOpen(true)
     requestAnimationFrame(() =>
       requestAnimationFrame(() => setDeleteVisible(true)),
@@ -95,46 +103,68 @@ export function EventCard({
   function onTouchMove(e: React.TouchEvent) {
     if (!isDragging.current || startXRef.current === null) return
     const dx = e.touches[0].clientX - startXRef.current
-    if (dx > 0) {
-      setSwipeOffset(0)
-      return
-    }
-    setSwipeOffset(Math.max(dx, -REVEAL))
+    const raw = baseOffsetRef.current + dx
+    // apply rubber-band resistance beyond REVEAL
+    const clamped = Math.max(-REVEAL, Math.min(REVEAL, raw))
+    setSwipeOffset(clamped)
   }
 
-  function onTouchEnd() {
+  function onTouchEnd(e: React.TouchEvent) {
     isDragging.current = false
+    if (startXRef.current === null) return
+
+    const dx = e.changedTouches[0].clientX - startXRef.current
+    startXRef.current = null
+
+    // tap while card is open → close
+    if (Math.abs(dx) < 6 && baseOffsetRef.current !== 0) {
+      snapTo(0)
+      return
+    }
+
+    // snap to nearest stable position
     if (swipeOffset <= -THRESHOLD) {
-      setSwipeOffset(-REVEAL)
+      snapTo(-REVEAL)
+    } else if (swipeOffset >= THRESHOLD) {
+      snapTo(REVEAL)
     } else {
-      setSwipeOffset(0)
+      snapTo(0)
     }
   }
 
   return (
     <>
       <div className="relative overflow-hidden rounded-2xl">
-        {/* Swipe action background */}
-        <div className="absolute right-0 top-0 bottom-0 w-[72px] flex items-center justify-center bg-red-500 rounded-2xl">
-          <button
-            onClick={openDeleteSheet}
-            className="w-full h-full flex flex-col items-center justify-center gap-1 text-white"
-          >
-            <LuTrash2 size={20} />
-            <span className="text-[10px] font-semibold">Excluir</span>
-          </button>
-        </div>
+        {/* Left action: Edit */}
+        <Link
+          href={`/dashboard/events/${id}/edit`}
+          className="absolute left-0 top-0 bottom-0 w-[80px] flex flex-col items-center justify-center gap-1 bg-indigo-500 text-white"
+        >
+          <LuPencil size={22} />
+          <span className="text-[10px] font-semibold">Editar</span>
+        </Link>
+
+        {/* Right action: Delete */}
+        <button
+          onClick={openDeleteSheet}
+          className="absolute right-0 top-0 bottom-0 w-[80px] flex flex-col items-center justify-center gap-1 bg-red-500 text-white"
+        >
+          <LuTrash2 size={22} />
+          <span className="text-[10px] font-semibold">Excluir</span>
+        </button>
 
         {/* Card */}
         <div
           style={{
             transform: `translateX(${swipeOffset}px)`,
-            transition: isDragging.current ? 'none' : 'transform 0.2s ease',
+            transition: isDragging.current
+              ? 'none'
+              : 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           }}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4 flex items-start gap-4"
+          className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4 relative"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -160,20 +190,6 @@ export function EventCard({
                 ? 'no dia'
                 : `${daysBeforeAlert} dia${daysBeforeAlert > 1 ? 's' : ''} antes`}
             </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <Link
-              href={`/dashboard/events/${id}/edit`}
-              className="rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Editar
-            </Link>
-            <button
-              onClick={openDeleteSheet}
-              className="rounded-lg border border-red-100 dark:border-red-900/40 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-            >
-              Excluir
-            </button>
           </div>
         </div>
       </div>
