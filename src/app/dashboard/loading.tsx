@@ -33,9 +33,8 @@ export default function DashboardLoading() {
           <div className="flex flex-col gap-2">
             <SkeletonLine className="h-6 w-36" />
             <SkeletonLine className="h-4 w-24" />
-            <SkeletonLine className="h-4 w-48 mt-0.5" />
           </div>
-          <SkeletonLine className="h-9 w-20 rounded-xl" />
+          <SkeletonLine className="h-9 w-9 rounded-full" />
         </div>
       </div>
       <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-3">

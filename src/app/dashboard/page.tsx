@@ -68,22 +68,23 @@ export default async function DashboardPage() {
                 : `${events.length} evento${events.length > 1 ? 's' : ''}`}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/dashboard/settings"
-              className="rounded-xl p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Configurações"
-            >
-              ⚙️
-            </Link>
-            <Link
-              href="/dashboard/events/new"
-              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
-            >
-              <span className="text-lg leading-none">+</span>
-              Novo
-            </Link>
-          </div>
+          <Link
+            href="/dashboard/profile"
+            className="rounded-full overflow-hidden ring-2 ring-gray-200 dark:ring-gray-600 hover:ring-indigo-400 transition-all shrink-0"
+          >
+            {session.user?.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={session.user.image}
+                alt={session.user.name ?? ''}
+                className="w-9 h-9 rounded-full"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                {session.user?.name?.[0] ?? '?'}
+              </div>
+            )}
+          </Link>
         </div>
       </div>
 
