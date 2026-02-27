@@ -83,7 +83,7 @@ export default async function EventDetailPage({ params }: Props) {
           </h1>
           <Link
             href={`/dashboard/events/${id}/edit`}
-            className="rounded-xl p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+            className="rounded-xl p-1.5 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
           >
             <LuPencil size={20} />
           </Link>
@@ -162,24 +162,28 @@ export default async function EventDetailPage({ params }: Props) {
             </div>
 
             {/* Notes */}
-            {event.notes && (
-              <div className="flex items-start gap-4 px-5 py-4">
-                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <LuStickyNote
-                    size={16}
-                    className="text-indigo-600 dark:text-indigo-400"
-                  />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
-                    Notas
-                  </p>
+            <div className="flex items-start gap-4 px-5 py-4">
+              <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0 mt-0.5">
+                <LuStickyNote
+                  size={16}
+                  className="text-indigo-600 dark:text-indigo-400"
+                />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                  Notas
+                </p>
+                {event.notes ? (
                   <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 whitespace-pre-wrap leading-relaxed">
                     {event.notes}
                   </p>
-                </div>
+                ) : (
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5 italic">
+                    Nenhuma nota adicionada.
+                  </p>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Delete */}

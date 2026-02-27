@@ -175,7 +175,7 @@ export function EventCard({
           onClick={() => router.push(`/dashboard/events/${id}/edit`)}
           className="absolute left-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800"
         >
-          <LuPencil size={24} className="text-orange-500" />
+          <LuPencil size={24} className="text-yellow-500" />
         </button>
 
         {/* Right action: Delete (same bg as card — only icon is visible) */}
