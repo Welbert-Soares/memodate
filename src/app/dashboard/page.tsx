@@ -2,40 +2,14 @@ import { Suspense } from 'react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { getEvents } from '@/lib/actions/events'
-import { EventType } from '@/generated/prisma'
 import { LuCalendar } from 'react-icons/lu'
 import { NotificationPrompt } from '@/components/NotificationPrompt'
 import { InstallPrompt } from '@/components/InstallPrompt'
 import { Toast } from '@/components/Toast'
 import { DashboardContent, ProcessedEvent } from '@/components/DashboardContent'
 import { ScrollArea } from '@/components/ScrollArea'
+import { EVENT_TYPE_CONFIG } from '@/lib/eventTypeConfig'
 import Link from 'next/link'
-
-const TYPE_CONFIG: Record<
-  EventType,
-  { label: string; color: string; dot: string }
-> = {
-  BIRTHDAY: {
-    label: 'Aniversário',
-    color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
-    dot: 'bg-pink-400',
-  },
-  ANNIVERSARY: {
-    label: 'Comemoração',
-    color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-    dot: 'bg-purple-400',
-  },
-  HOLIDAY: {
-    label: 'Data especial',
-    color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-    dot: 'bg-amber-400',
-  },
-  OTHER: {
-    label: 'Outro',
-    color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
-    dot: 'bg-gray-400',
-  },
-}
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString('pt-BR', {
@@ -69,7 +43,7 @@ export default async function DashboardPage() {
 
   const events: ProcessedEvent[] = rawEvents
     .map((e) => {
-      const tc = TYPE_CONFIG[e.type]
+      const tc = EVENT_TYPE_CONFIG[e.type]
       return {
         id: e.id,
         title: e.title,
@@ -132,7 +106,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Scrollable content */}
-      <ScrollArea storageKey="dashboard">
+      <ScrollArea storageKey="dashboard" refreshable>
         <div className="max-w-lg mx-auto px-4 py-4">
           {events.length === 0 ? (
             <div className="text-center py-16 flex flex-col items-center gap-3">

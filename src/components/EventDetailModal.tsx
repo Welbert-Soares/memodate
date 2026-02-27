@@ -13,27 +13,7 @@ import {
   LuX,
 } from 'react-icons/lu'
 import { haptic } from '@/lib/haptic'
-
-const TYPE_CONFIG: Record<EventType, { label: string; color: string }> = {
-  BIRTHDAY: {
-    label: 'Aniversário',
-    color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
-  },
-  ANNIVERSARY: {
-    label: 'Comemoração',
-    color:
-      'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-  },
-  HOLIDAY: {
-    label: 'Data especial',
-    color:
-      'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-  },
-  OTHER: {
-    label: 'Outro',
-    color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
-  },
-}
+import { EVENT_TYPE_CONFIG } from '@/lib/eventTypeConfig'
 
 function alertLabel(days: number): string {
   if (days === 0) return 'No dia do evento'
@@ -92,7 +72,7 @@ export function EventDetailModal({
 
   if (!isOpen) return null
 
-  const typeConfig = TYPE_CONFIG[type]
+  const typeConfig = EVENT_TYPE_CONFIG[type]
   const backdropOpacity = visible ? Math.max(0, 0.4 - dragY / 400) : 0
 
   function onSheetTouchStart(e: React.TouchEvent) {

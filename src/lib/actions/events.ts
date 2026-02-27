@@ -6,6 +6,28 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { EventType } from '@/generated/prisma'
 
+const VALID_TYPES: string[] = ['BIRTHDAY', 'ANNIVERSARY', 'HOLIDAY', 'OTHER']
+
+function parseEventFields(formData: FormData) {
+  const title = ((formData.get('title') as string) ?? '').trim().slice(0, 200)
+  const date = (formData.get('date') as string) ?? ''
+  const type = formData.get('type') as string
+  const recurring = formData.get('recurring') === 'true'
+  const daysBeforeAlertRaw = parseInt(formData.get('daysBeforeAlert') as string)
+  const daysBeforeAlert = Math.max(
+    0,
+    Math.min(365, Number.isNaN(daysBeforeAlertRaw) ? 1 : daysBeforeAlertRaw),
+  )
+  const notesRaw = (formData.get('notes') as string) || null
+  const notes = notesRaw ? notesRaw.slice(0, 1000) : null
+
+  if (title.length < 2) return null
+  if (!date || isNaN(Date.parse(date))) return null
+  if (!VALID_TYPES.includes(type)) return null
+
+  return { title, date, type: type as EventType, recurring, daysBeforeAlert, notes }
+}
+
 export async function getEvents() {
   const session = await auth()
   if (!session?.user?.id) return []
@@ -29,23 +51,18 @@ export async function createEvent(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
 
-  const title = formData.get('title') as string
-  const date = formData.get('date') as string
-  const type = formData.get('type') as EventType
-  const recurring = formData.get('recurring') === 'true'
-  const daysBeforeAlertRaw = parseInt(formData.get('daysBeforeAlert') as string)
-  const daysBeforeAlert = Number.isNaN(daysBeforeAlertRaw) ? 1 : daysBeforeAlertRaw
-  const notes = (formData.get('notes') as string) || null
+  const fields = parseEventFields(formData)
+  if (!fields) redirect('/dashboard')
 
   await prisma.event.create({
     data: {
       userId: session.user.id,
-      title,
-      date: new Date(date),
-      type,
-      recurring,
-      daysBeforeAlert,
-      notes,
+      title: fields.title,
+      date: new Date(fields.date),
+      type: fields.type,
+      recurring: fields.recurring,
+      daysBeforeAlert: fields.daysBeforeAlert,
+      notes: fields.notes,
     },
   })
 
@@ -57,13 +74,8 @@ export async function updateEvent(id: string, formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
 
-  const title = formData.get('title') as string
-  const date = formData.get('date') as string
-  const type = formData.get('type') as EventType
-  const recurring = formData.get('recurring') === 'true'
-  const daysBeforeAlertRaw = parseInt(formData.get('daysBeforeAlert') as string)
-  const daysBeforeAlert = Number.isNaN(daysBeforeAlertRaw) ? 1 : daysBeforeAlertRaw
-  const notes = (formData.get('notes') as string) || null
+  const fields = parseEventFields(formData)
+  if (!fields) redirect('/dashboard')
 
   const existing = await prisma.event.findFirst({
     where: { id, userId: session.user.id },
@@ -74,12 +86,12 @@ export async function updateEvent(id: string, formData: FormData) {
   await prisma.event.update({
     where: { id },
     data: {
-      title,
-      date: new Date(date),
-      type,
-      recurring,
-      daysBeforeAlert,
-      notes,
+      title: fields.title,
+      date: new Date(fields.date),
+      type: fields.type,
+      recurring: fields.recurring,
+      daysBeforeAlert: fields.daysBeforeAlert,
+      notes: fields.notes,
     },
   })
 

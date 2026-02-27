@@ -16,20 +16,27 @@ export function NotificationToggle() {
   const [pending, setPending] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
+
     async function init() {
       if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-        setStatus('unsupported')
+        if (!cancelled) setStatus('unsupported')
         return
       }
       if (Notification.permission === 'denied') {
-        setStatus('denied')
+        if (!cancelled) setStatus('denied')
         return
       }
       const registration = await navigator.serviceWorker.ready
+      if (cancelled) return
       const sub = await registration.pushManager.getSubscription()
-      setStatus(sub ? 'subscribed' : 'unsubscribed')
+      if (!cancelled) setStatus(sub ? 'subscribed' : 'unsubscribed')
     }
+
     init()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function handleSubscribe() {

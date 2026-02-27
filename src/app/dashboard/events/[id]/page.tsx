@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { getEvent } from '@/lib/actions/events'
-import { EventType } from '@/generated/prisma'
 import {
   LuArrowLeft,
   LuPencil,
@@ -12,29 +11,9 @@ import {
   LuStickyNote,
 } from 'react-icons/lu'
 import { DeleteEventButton } from '@/components/DeleteEventButton'
+import { EVENT_TYPE_CONFIG } from '@/lib/eventTypeConfig'
 
 type Props = { params: Promise<{ id: string }> }
-
-const TYPE_CONFIG: Record<EventType, { label: string; color: string }> = {
-  BIRTHDAY: {
-    label: 'Aniversário',
-    color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
-  },
-  ANNIVERSARY: {
-    label: 'Comemoração',
-    color:
-      'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-  },
-  HOLIDAY: {
-    label: 'Data especial',
-    color:
-      'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-  },
-  OTHER: {
-    label: 'Outro',
-    color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
-  },
-}
 
 function formatFullDate(date: Date) {
   return new Date(date).toLocaleDateString('pt-BR', {
@@ -62,7 +41,7 @@ export default async function EventDetailPage({ params }: Props) {
   const event = await getEvent(id)
   if (!event) notFound()
 
-  const typeConfig = TYPE_CONFIG[event.type]
+  const typeConfig = EVENT_TYPE_CONFIG[event.type]
 
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900">
