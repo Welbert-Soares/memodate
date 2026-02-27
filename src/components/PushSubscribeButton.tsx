@@ -24,18 +24,20 @@ export function PushSubscribeButton() {
   const [status, setStatus] = useState<Status>('loading')
 
   useEffect(() => {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-      setStatus('unsupported')
-      return
-    }
-    if (Notification.permission === 'denied') {
-      setStatus('denied')
-      return
-    }
-    navigator.serviceWorker.ready.then(async (registration) => {
+    async function init() {
+      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        setStatus('unsupported')
+        return
+      }
+      if (Notification.permission === 'denied') {
+        setStatus('denied')
+        return
+      }
+      const registration = await navigator.serviceWorker.ready
       const sub = await registration.pushManager.getSubscription()
       setStatus(sub ? 'subscribed' : 'unsubscribed')
-    })
+    }
+    init()
   }, [])
 
   async function handleSubscribe() {
