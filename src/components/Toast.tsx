@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
-const MESSAGES: Record<string, { text: string; icon: string }> = {
-  saved: { text: 'Evento salvo!', icon: '✓' },
-  deleted: { text: 'Evento excluído.', icon: '✓' },
+const MESSAGES: Record<string, { text: string; icon: string; iconColor: string }> = {
+  saved: { text: 'Evento salvo!', icon: '✓', iconColor: 'text-green-400 dark:text-green-500' },
+  deleted: { text: 'Evento excluído.', icon: '×', iconColor: 'text-red-400 dark:text-red-400' },
 }
 
 export function Toast() {
@@ -13,7 +13,7 @@ export function Toast() {
   const router = useRouter()
   const pathname = usePathname()
   const [visible, setVisible] = useState(false)
-  const [message, setMessage] = useState<{ text: string; icon: string } | null>(
+  const [message, setMessage] = useState<{ text: string; icon: string; iconColor: string } | null>(
     null,
   )
 
@@ -46,7 +46,7 @@ export function Toast() {
       className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
     >
       <div className="flex items-center gap-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-4 py-2.5 rounded-2xl shadow-lg text-sm font-medium">
-        <span className="text-green-400 dark:text-green-600 font-bold">
+        <span className={`${message.iconColor} font-bold`}>
           {message.icon}
         </span>
         {message.text}

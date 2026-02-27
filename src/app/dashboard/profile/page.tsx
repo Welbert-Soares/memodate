@@ -76,7 +76,7 @@ export default async function ProfilePage() {
 
           <Link
             href="/dashboard"
-            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between"
+            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between active:bg-gray-50 dark:active:bg-gray-700 transition-colors touch-manipulation"
           >
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Ver todos os eventos
@@ -86,7 +86,7 @@ export default async function ProfilePage() {
 
           <Link
             href="/dashboard/settings"
-            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between"
+            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between active:bg-gray-50 dark:active:bg-gray-700 transition-colors touch-manipulation"
           >
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Configurações de notificações
@@ -104,7 +104,7 @@ export default async function ProfilePage() {
           >
             <button
               type="submit"
-              className="w-full bg-white dark:bg-gray-800 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-sm px-4 py-4 text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-center"
+              className="w-full bg-white dark:bg-gray-800 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-sm px-4 py-4 text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 active:scale-[0.97] transition-all touch-manipulation text-center"
             >
               Sair da conta
             </button>

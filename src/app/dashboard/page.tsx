@@ -113,7 +113,7 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/dashboard/profile"
-            className="rounded-full overflow-hidden ring-2 ring-gray-200 dark:ring-gray-600 hover:ring-indigo-400 transition-all shrink-0"
+            className="rounded-full overflow-hidden ring-2 ring-gray-200 dark:ring-gray-600 hover:ring-indigo-400 active:opacity-70 transition-all touch-manipulation shrink-0"
           >
             {session.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element

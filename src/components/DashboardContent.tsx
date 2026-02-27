@@ -199,9 +199,12 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
       {view === 'list' && (
         <div className="flex flex-col gap-3 mt-2">
           {filtered.length === 0 ? (
-            <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-8">
-              Nenhum evento nessa categoria.
-            </p>
+            <div className="flex flex-col items-center gap-2 py-10">
+              <LuCalendarDays size={32} className="text-gray-300 dark:text-gray-600" />
+              <p className="text-center text-sm text-gray-400 dark:text-gray-500">
+                Nenhum evento nessa categoria.
+              </p>
+            </div>
           ) : (
             filtered.map((event) => (
               <EventCard
@@ -234,9 +237,24 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
               >
                 <LuChevronLeft size={18} />
               </button>
-              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {PT_MONTHS[calMonth]} {calYear}
-              </span>
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  {PT_MONTHS[calMonth]} {calYear}
+                </span>
+                {(calYear !== todayYear || calMonth !== todayMonth) && (
+                  <button
+                    onClick={() => {
+                      haptic(6)
+                      setCalYear(todayYear)
+                      setCalMonth(todayMonth)
+                      setSelectedDay(todayDay)
+                    }}
+                    className="text-[11px] text-indigo-500 dark:text-indigo-400 font-medium touch-manipulation active:opacity-60 transition-opacity"
+                  >
+                    Ir para hoje
+                  </button>
+                )}
+              </div>
               <button
                 onClick={nextMonth}
                 className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90 transition-all touch-manipulation"

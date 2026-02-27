@@ -217,7 +217,7 @@ export function EventCard({
         </p>
         <button
           onClick={handleUndo}
-          className="shrink-0 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors"
+          className="shrink-0 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 active:opacity-60 transition-all touch-manipulation"
         >
           Desfazer
         </button>
@@ -231,7 +231,7 @@ export function EventCard({
         {/* Left action: Edit */}
         <button
           onClick={() => router.push(`/dashboard/events/${id}/edit`)}
-          className="absolute left-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800"
+          className="absolute left-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800 active:opacity-60 touch-manipulation"
         >
           <LuPencil size={24} className="text-yellow-500" />
         </button>
@@ -239,7 +239,7 @@ export function EventCard({
         {/* Right action: Delete */}
         <button
           onClick={openDeleteSheet}
-          className="absolute right-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800"
+          className="absolute right-0 top-0 bottom-0 w-[80px] flex items-center justify-center bg-white dark:bg-gray-800 active:opacity-60 touch-manipulation"
         >
           <LuTrash2 size={24} className="text-red-500" />
         </button>
