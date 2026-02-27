@@ -33,8 +33,8 @@ export async function createEvent(formData: FormData) {
   const date = formData.get('date') as string
   const type = formData.get('type') as EventType
   const recurring = formData.get('recurring') === 'true'
-  const daysBeforeAlert =
-    parseInt(formData.get('daysBeforeAlert') as string) || 1
+  const daysBeforeAlertRaw = parseInt(formData.get('daysBeforeAlert') as string)
+  const daysBeforeAlert = Number.isNaN(daysBeforeAlertRaw) ? 1 : daysBeforeAlertRaw
   const notes = (formData.get('notes') as string) || null
 
   await prisma.event.create({
@@ -61,8 +61,8 @@ export async function updateEvent(id: string, formData: FormData) {
   const date = formData.get('date') as string
   const type = formData.get('type') as EventType
   const recurring = formData.get('recurring') === 'true'
-  const daysBeforeAlert =
-    parseInt(formData.get('daysBeforeAlert') as string) || 1
+  const daysBeforeAlertRaw = parseInt(formData.get('daysBeforeAlert') as string)
+  const daysBeforeAlert = Number.isNaN(daysBeforeAlertRaw) ? 1 : daysBeforeAlertRaw
   const notes = (formData.get('notes') as string) || null
 
   await prisma.event.updateMany({
