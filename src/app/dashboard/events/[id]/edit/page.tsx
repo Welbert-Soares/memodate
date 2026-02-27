@@ -29,7 +29,7 @@ export default async function EditEventPage({ params }: Props) {
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="rounded-xl p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="rounded-xl p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <LuArrowLeft size={22} />
           </Link>

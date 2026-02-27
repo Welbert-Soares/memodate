@@ -23,11 +23,13 @@ export default async function ProfilePage() {
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900">
       <div
-        className="flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-4 py-5"
+        className="shrink-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-4 py-5"
         style={{ paddingTop: 'max(1.25rem, env(safe-area-inset-top))' }}
       >
         <div className="max-w-lg mx-auto">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Perfil</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            Perfil
+          </h1>
         </div>
       </div>
 
@@ -57,8 +59,12 @@ export default async function ProfilePage() {
             </div>
             <div className="flex gap-4 mt-1">
               <div className="text-center">
-                <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{events.length}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">evento{events.length !== 1 ? 's' : ''}</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {events.length}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  evento{events.length !== 1 ? 's' : ''}
+                </p>
               </div>
             </div>
           </div>
@@ -72,16 +78,20 @@ export default async function ProfilePage() {
             href="/dashboard"
             className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between"
           >
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Ver todos os eventos</span>
-            <LuChevronRight size={18} className="text-gray-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Ver todos os eventos
+            </span>
+            <LuChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
           </Link>
 
           <Link
             href="/dashboard/settings"
             className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between"
           >
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Configurações de notificações</span>
-            <LuChevronRight size={18} className="text-gray-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Configurações de notificações
+            </span>
+            <LuChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
           </Link>
 
           {/* Sign out */}
