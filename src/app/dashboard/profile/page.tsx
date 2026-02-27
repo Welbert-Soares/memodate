@@ -103,8 +103,8 @@ export default async function ProfilePage() {
               Preferências
             </p>
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
-              <div className="px-4 py-4 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
+              <div className="px-4 py-4 flex items-start gap-3">
+                <div className="w-8 h-8 mt-0.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0">
                   <LuClock size={16} className="text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div className="flex-1 min-w-0">

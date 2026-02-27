@@ -31,34 +31,29 @@ export function TimezoneSelector({ current }: { current: string }) {
   }
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="min-w-0">
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Fuso horário
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-          Usado para enviar lembretes no horário certo
-        </p>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
         {saved && (
-          <span className="text-xs font-medium text-green-600 dark:text-green-400 transition-opacity">
+          <span className="text-xs font-medium text-green-600 dark:text-green-400">
             ✓ Salvo
           </span>
         )}
-        <select
-          defaultValue={current}
-          onChange={handleChange}
-          disabled={isPending}
-          className="rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
-        >
-          {TIMEZONES.map((tz) => (
-            <option key={tz.value} value={tz.value}>
-              {tz.label}
-            </option>
-          ))}
-        </select>
       </div>
+      <select
+        defaultValue={current}
+        onChange={handleChange}
+        disabled={isPending}
+        className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+      >
+        {TIMEZONES.map((tz) => (
+          <option key={tz.value} value={tz.value}>
+            {tz.label}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }
