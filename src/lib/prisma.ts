@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/generated/prisma/client'
+import { PrismaClient } from '@/generated/prisma'
 import { PrismaNeon } from '@prisma/adapter-neon'
 
 const createPrismaClient = () => {
