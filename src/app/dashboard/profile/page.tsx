@@ -13,7 +13,9 @@ export default async function ProfilePage() {
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 px-4 py-5">
         <div className="max-w-lg mx-auto">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Perfil</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            Perfil
+          </h1>
         </div>
       </div>
 
@@ -42,8 +44,12 @@ export default async function ProfilePage() {
           </div>
           <div className="flex gap-4 mt-1">
             <div className="text-center">
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{events.length}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">evento{events.length !== 1 ? 's' : ''}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {events.length}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                evento{events.length !== 1 ? 's' : ''}
+              </p>
             </div>
           </div>
         </div>
@@ -53,7 +59,9 @@ export default async function ProfilePage() {
           href="/dashboard"
           className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between"
         >
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Ver todos os eventos</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Ver todos os eventos
+          </span>
           <span className="text-gray-400">→</span>
         </Link>
 
@@ -61,7 +69,9 @@ export default async function ProfilePage() {
           href="/dashboard/settings"
           className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3.5 flex items-center justify-between"
         >
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Configurações de notificações</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Configurações de notificações
+          </span>
           <span className="text-gray-400">→</span>
         </Link>
 
