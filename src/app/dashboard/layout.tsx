@@ -1,5 +1,6 @@
 import { BottomNav } from '@/components/BottomNav'
 import { PageTransition } from '@/components/PageTransition'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export default function DashboardLayout({
   children,
@@ -8,7 +9,9 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden">
-      <PageTransition>{children}</PageTransition>
+      <ErrorBoundary>
+        <PageTransition>{children}</PageTransition>
+      </ErrorBoundary>
       <BottomNav />
     </div>
   )

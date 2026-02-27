@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { updateTimezone } from '@/lib/actions/events'
 
 const TIMEZONES = [
@@ -18,11 +18,15 @@ const TIMEZONES = [
 
 export function TimezoneSelector({ current }: { current: string }) {
   const [isPending, startTransition] = useTransition()
+  const [saved, setSaved] = useState(false)
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const tz = e.target.value
+    setSaved(false)
     startTransition(async () => {
       await updateTimezone(tz)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
     })
   }
 
@@ -36,18 +40,25 @@ export function TimezoneSelector({ current }: { current: string }) {
           Usado para enviar lembretes no horário certo
         </p>
       </div>
-      <select
-        defaultValue={current}
-        onChange={handleChange}
-        disabled={isPending}
-        className="shrink-0 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
-      >
-        {TIMEZONES.map((tz) => (
-          <option key={tz.value} value={tz.value}>
-            {tz.label}
-          </option>
-        ))}
-      </select>
+      <div className="flex items-center gap-2 shrink-0">
+        {saved && (
+          <span className="text-xs font-medium text-green-600 dark:text-green-400 transition-opacity">
+            ✓ Salvo
+          </span>
+        )}
+        <select
+          defaultValue={current}
+          onChange={handleChange}
+          disabled={isPending}
+          className="rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
+        >
+          {TIMEZONES.map((tz) => (
+            <option key={tz.value} value={tz.value}>
+              {tz.label}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   )
 }

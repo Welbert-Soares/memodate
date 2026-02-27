@@ -65,8 +65,14 @@ export async function updateEvent(id: string, formData: FormData) {
   const daysBeforeAlert = Number.isNaN(daysBeforeAlertRaw) ? 1 : daysBeforeAlertRaw
   const notes = (formData.get('notes') as string) || null
 
-  await prisma.event.updateMany({
+  const existing = await prisma.event.findFirst({
     where: { id, userId: session.user.id },
+    select: { id: true },
+  })
+  if (!existing) redirect('/dashboard')
+
+  await prisma.event.update({
+    where: { id },
     data: {
       title,
       date: new Date(date),

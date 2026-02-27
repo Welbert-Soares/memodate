@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LuHouse, LuCirclePlus, LuSettings2 } from 'react-icons/lu'
@@ -7,6 +8,16 @@ import { haptic } from '@/lib/haptic'
 
 export function BottomNav() {
   const pathname = usePathname()
+  const [hidden, setHidden] = useState(false)
+
+  useEffect(() => {
+    function onScrollDir(e: Event) {
+      const dir = (e as CustomEvent<{ direction: string }>).detail.direction
+      setHidden(dir === 'down')
+    }
+    window.addEventListener('scrolldir', onScrollDir)
+    return () => window.removeEventListener('scrolldir', onScrollDir)
+  }, [])
 
   const isHome = pathname === '/dashboard'
   const isNew = pathname.startsWith('/dashboard/events')
@@ -14,7 +25,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="shrink-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-700"
+      className={`shrink-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-700 transition-transform duration-300 ${hidden ? 'translate-y-full' : 'translate-y-0'}`}
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="max-w-lg mx-auto flex items-center justify-around h-14">

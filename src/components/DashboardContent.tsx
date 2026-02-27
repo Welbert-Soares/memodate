@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { EventType } from '@/generated/prisma'
 import { EventCard } from '@/components/EventCard'
 import {
@@ -8,6 +8,8 @@ import {
   LuCalendarDays,
   LuChevronLeft,
   LuChevronRight,
+  LuSearch,
+  LuX,
 } from 'react-icons/lu'
 import Link from 'next/link'
 import { haptic } from '@/lib/haptic'
@@ -84,6 +86,8 @@ function buildCalendarDays(year: number, month: number) {
 export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
   const [filter, setFilter] = useState<EventType | 'ALL'>('ALL')
   const [view, setView] = useState<'list' | 'calendar'>('calendar')
+  const [search, setSearch] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const now = new Date()
   const [calYear, setCalYear] = useState(now.getFullYear())
@@ -109,8 +113,14 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
     }
   }, [events])
 
-  const filtered =
-    filter === 'ALL' ? events : events.filter((e) => e.type === filter)
+  const filtered = useMemo(() => {
+    let result = filter === 'ALL' ? events : events.filter((e) => e.type === filter)
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter((e) => e.title.toLowerCase().includes(q))
+    }
+    return result
+  }, [events, filter, search])
 
   // Present types that actually appear in events (for filter chips)
   const presentTypes = Array.from(new Set(events.map((e) => e.type)))
@@ -203,11 +213,35 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
       {/* LIST VIEW */}
       {view === 'list' && (
         <div className="flex flex-col gap-3 mt-2">
+          {/* Search bar */}
+          <div className="relative mb-3">
+            <LuSearch
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
+            />
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar evento..."
+              className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-9 pr-9 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            {search && (
+              <button
+                onClick={() => { setSearch(''); searchInputRef.current?.focus() }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 active:opacity-60 touch-manipulation"
+                aria-label="Limpar busca"
+              >
+                <LuX size={15} />
+              </button>
+            )}
+          </div>
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-10">
               <LuCalendarDays size={32} className="text-gray-300 dark:text-gray-600" />
               <p className="text-center text-sm text-gray-400 dark:text-gray-500">
-                Nenhum evento nessa categoria.
+                {search ? `Nenhum resultado para "${search}".` : 'Nenhum evento nessa categoria.'}
               </p>
             </div>
           ) : (
@@ -294,6 +328,10 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                 const isSelected = day === selectedDay
                 const dayEvs = eventsByDay.get(day) ?? []
                 const hasEvents = dayEvs.length > 0
+                const isPast =
+                  calYear < todayYear ||
+                  (calYear === todayYear && calMonth < todayMonth) ||
+                  (calYear === todayYear && calMonth === todayMonth && day < todayDay)
 
                 return (
                   <button
@@ -318,7 +356,9 @@ export function DashboardContent({ events }: { events: ProcessedEvent[] }) {
                           ? 'font-bold text-white'
                           : isToday
                             ? 'font-bold text-indigo-600 dark:text-indigo-400'
-                            : 'text-gray-700 dark:text-gray-300'
+                            : isPast
+                              ? 'text-gray-400 dark:text-gray-600'
+                              : 'text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {day}

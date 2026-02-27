@@ -24,5 +24,21 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
+    shortcuts: [
+      {
+        name: 'Novo evento',
+        short_name: 'Novo',
+        description: 'Criar um novo evento',
+        url: '/dashboard/events/new',
+        icons: [{ src: '/icone_memodate.webp', sizes: '512x512' }],
+      },
+      {
+        name: 'Meus eventos',
+        short_name: 'Início',
+        description: 'Ver seus eventos',
+        url: '/dashboard',
+        icons: [{ src: '/icone_memodate.webp', sizes: '512x512' }],
+      },
+    ],
   }
 }
