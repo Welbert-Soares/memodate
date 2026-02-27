@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { Suspense } from 'react'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
@@ -6,14 +5,34 @@ import { getEvents } from '@/lib/actions/events'
 import { EventType } from '@/generated/prisma'
 import { LuCalendar } from 'react-icons/lu'
 import { NotificationPrompt } from '@/components/NotificationPrompt'
-import { EventCard } from '@/components/EventCard'
 import { Toast } from '@/components/Toast'
+import { DashboardContent, ProcessedEvent } from '@/components/DashboardContent'
+import Link from 'next/link'
 
-const TYPE_CONFIG: Record<EventType, { label: string; color: string }> = {
-  BIRTHDAY: { label: 'Aniversário', color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' },
-  ANNIVERSARY: { label: 'Comemoração', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
-  HOLIDAY: { label: 'Data especial', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
-  OTHER: { label: 'Outro', color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' },
+const TYPE_CONFIG: Record<
+  EventType,
+  { label: string; color: string; dot: string }
+> = {
+  BIRTHDAY: {
+    label: 'Aniversário',
+    color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
+    dot: 'bg-pink-400',
+  },
+  ANNIVERSARY: {
+    label: 'Comemoração',
+    color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+    dot: 'bg-purple-400',
+  },
+  HOLIDAY: {
+    label: 'Data especial',
+    color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+    dot: 'bg-amber-400',
+  },
+  OTHER: {
+    label: 'Outro',
+    color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+    dot: 'bg-gray-400',
+  },
 }
 
 function formatDate(date: Date) {
@@ -45,8 +64,24 @@ export default async function DashboardPage() {
   if (!session) redirect('/login')
 
   const rawEvents = await getEvents()
-  const events = rawEvents
-    .map((e) => ({ ...e, days: daysUntil(e.date, e.recurring) }))
+
+  const events: ProcessedEvent[] = rawEvents
+    .map((e) => {
+      const tc = TYPE_CONFIG[e.type]
+      return {
+        id: e.id,
+        title: e.title,
+        dateMs: new Date(e.date).getTime(),
+        type: e.type,
+        recurring: e.recurring,
+        daysBeforeAlert: e.daysBeforeAlert,
+        days: daysUntil(e.date, e.recurring),
+        formattedDate: formatDate(e.date),
+        typeLabel: tc.label,
+        typeColor: tc.color,
+        typeDot: tc.dot,
+      }
+    })
     .sort((a, b) => {
       const aFuture = a.recurring || a.days >= 0
       const bFuture = b.recurring || b.days >= 0
@@ -95,7 +130,7 @@ export default async function DashboardPage() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-3">
+        <div className="max-w-lg mx-auto px-4 py-4">
           {events.length === 0 ? (
             <div className="text-center py-16 flex flex-col items-center gap-3">
               <LuCalendar size={48} className="text-gray-300 dark:text-gray-600" />
@@ -110,25 +145,11 @@ export default async function DashboardPage() {
               </Link>
             </div>
           ) : (
-            events.map((event) => {
-              const typeConfig = TYPE_CONFIG[event.type]
-              return (
-                <EventCard
-                  key={event.id}
-                  id={event.id}
-                  title={event.title}
-                  formattedDate={formatDate(event.date)}
-                  recurring={event.recurring}
-                  daysBeforeAlert={event.daysBeforeAlert}
-                  days={event.days}
-                  typeLabel={typeConfig.label}
-                  typeColor={typeConfig.color}
-                />
-              )
-            })
+            <DashboardContent events={events} />
           )}
         </div>
       </div>
+
       <NotificationPrompt />
       <Suspense>
         <Toast />

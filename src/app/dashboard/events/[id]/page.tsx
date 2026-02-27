@@ -3,16 +3,37 @@ import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { getEvent } from '@/lib/actions/events'
 import { EventType } from '@/generated/prisma'
-import { LuArrowLeft, LuPencil, LuCalendarDays, LuBell, LuRepeat2, LuStickyNote } from 'react-icons/lu'
+import {
+  LuArrowLeft,
+  LuPencil,
+  LuCalendarDays,
+  LuBell,
+  LuRepeat2,
+  LuStickyNote,
+} from 'react-icons/lu'
 import { DeleteEventButton } from '@/components/DeleteEventButton'
 
 type Props = { params: Promise<{ id: string }> }
 
 const TYPE_CONFIG: Record<EventType, { label: string; color: string }> = {
-  BIRTHDAY: { label: 'Aniversário', color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' },
-  ANNIVERSARY: { label: 'Comemoração', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
-  HOLIDAY: { label: 'Data especial', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
-  OTHER: { label: 'Outro', color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' },
+  BIRTHDAY: {
+    label: 'Aniversário',
+    color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
+  },
+  ANNIVERSARY: {
+    label: 'Comemoração',
+    color:
+      'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+  },
+  HOLIDAY: {
+    label: 'Data especial',
+    color:
+      'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+  },
+  OTHER: {
+    label: 'Outro',
+    color: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+  },
 }
 
 function formatFullDate(date: Date) {
@@ -74,7 +95,9 @@ export default async function EventDetailPage({ params }: Props) {
         <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-4">
           {/* Title card */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-5 py-5">
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${typeConfig.color}`}>
+            <span
+              className={`text-xs px-2.5 py-1 rounded-full font-medium ${typeConfig.color}`}
+            >
               {typeConfig.label}
             </span>
             <h2 className="mt-3 text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
@@ -87,10 +110,15 @@ export default async function EventDetailPage({ params }: Props) {
             {/* Date */}
             <div className="flex items-center gap-4 px-5 py-4">
               <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0">
-                <LuCalendarDays size={16} className="text-indigo-600 dark:text-indigo-400" />
+                <LuCalendarDays
+                  size={16}
+                  className="text-indigo-600 dark:text-indigo-400"
+                />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Data</p>
+                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                  Data
+                </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize mt-0.5">
                   {formatFullDate(event.date)}
                 </p>
@@ -100,10 +128,15 @@ export default async function EventDetailPage({ params }: Props) {
             {/* Recurring */}
             <div className="flex items-center gap-4 px-5 py-4">
               <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0">
-                <LuRepeat2 size={16} className="text-indigo-600 dark:text-indigo-400" />
+                <LuRepeat2
+                  size={16}
+                  className="text-indigo-600 dark:text-indigo-400"
+                />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Repetição</p>
+                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                  Repetição
+                </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-0.5">
                   {event.recurring ? 'Repete todo ano' : 'Não repete'}
                 </p>
@@ -113,10 +146,15 @@ export default async function EventDetailPage({ params }: Props) {
             {/* Reminder */}
             <div className="flex items-center gap-4 px-5 py-4">
               <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0">
-                <LuBell size={16} className="text-indigo-600 dark:text-indigo-400" />
+                <LuBell
+                  size={16}
+                  className="text-indigo-600 dark:text-indigo-400"
+                />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Lembrete</p>
+                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                  Lembrete
+                </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-0.5">
                   {alertLabel(event.daysBeforeAlert)}
                 </p>
@@ -127,10 +165,15 @@ export default async function EventDetailPage({ params }: Props) {
             {event.notes && (
               <div className="flex items-start gap-4 px-5 py-4">
                 <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <LuStickyNote size={16} className="text-indigo-600 dark:text-indigo-400" />
+                  <LuStickyNote
+                    size={16}
+                    className="text-indigo-600 dark:text-indigo-400"
+                  />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">Notas</p>
+                  <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+                    Notas
+                  </p>
                   <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 whitespace-pre-wrap leading-relaxed">
                     {event.notes}
                   </p>
