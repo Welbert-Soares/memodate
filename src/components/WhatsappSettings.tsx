@@ -117,10 +117,13 @@ export function WhatsappSettings({ initialPhone, initialApiKey }: Props) {
               type="tel"
               value={phone}
               onChange={handlePhoneChange}
-              placeholder="+55 (11) 99999-9999"
+              placeholder="+55 (31) 9565-0333"
               disabled={isPending}
               className={inputClass}
             />
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Use o número como está no WhatsApp — sem o 9 extra (ex: 553195650333).
+            </p>
           </div>
 
           <div className="flex flex-col gap-1">
