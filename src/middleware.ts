@@ -7,8 +7,11 @@ export default auth((req) => {
   const isApiAuthRoute = req.nextUrl.pathname.startsWith('/api/auth')
   const isPublicRoute = req.nextUrl.pathname === '/'
 
-  // Deixa passar rotas de auth e públicas
-  if (isApiAuthRoute || isAuthRoute || isPublicRoute) {
+  const isApiCronRoute = req.nextUrl.pathname.startsWith('/api/cron')
+  const isApiPushRoute = req.nextUrl.pathname.startsWith('/api/push')
+
+  // Deixa passar rotas de auth, públicas e APIs com auth própria
+  if (isApiAuthRoute || isApiCronRoute || isApiPushRoute || isAuthRoute || isPublicRoute) {
     return NextResponse.next()
   }
 

@@ -36,7 +36,6 @@ export function NotificationPrompt() {
 
   async function handleAllow() {
     haptic(10)
-    dismiss()
     const registration = await navigator.serviceWorker.ready
     try {
       const sub = await registration.pushManager.subscribe({
@@ -57,6 +56,8 @@ export function NotificationPrompt() {
       })
     } catch {
       // User denied in browser dialog or another error — no action needed
+    } finally {
+      dismiss()
     }
   }
 
