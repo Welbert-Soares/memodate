@@ -2,10 +2,14 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { NotificationToggle } from '@/components/NotificationToggle'
 import { ImportHolidaysButton } from '@/components/ImportHolidaysButton'
+import { WhatsappSettings } from '@/components/WhatsappSettings'
+import { getWhatsappSettings } from '@/lib/actions/settings'
 
 export default async function SettingsPage() {
   const session = await auth()
   if (!session) redirect('/login')
+
+  const { phone, apiKey } = await getWhatsappSettings()
 
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900">
@@ -34,6 +38,13 @@ export default async function SettingsPage() {
               Datas comemorativas
             </p>
             <ImportHolidaysButton />
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-4">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">
+              WhatsApp
+            </p>
+            <WhatsappSettings initialPhone={phone} initialApiKey={apiKey} />
           </div>
         </div>
       </div>
