@@ -33,6 +33,8 @@ Copy `.env.example` to `.env`. Key variables:
 
 **PWA:** The app is a installable PWA. `public/sw.js` is the service worker. `src/app/manifest.ts` exports the web app manifest. `ServiceWorkerUpdater` handles SW version updates.
 
+**Middleware:** `src/proxy.ts` is the Next.js middleware file (Next.js 16 uses `proxy.ts` instead of `middleware.ts`). It protects all routes except `/`, `/login`, `/api/auth/*`, `/api/cron/*`, and `/api/push/*`.
+
 **Auth:** `src/auth.ts` configures NextAuth with Google OAuth and the Prisma adapter. Session always includes `user.id`. `src/types/next-auth.d.ts` extends the session type. On first login (`createUser` event), Brazilian holidays are automatically seeded for the user via `seedHolidaysForUser`.
 
 **Database:** Prisma client is generated into `src/generated/prisma/` (not `node_modules`). The singleton in `src/lib/prisma.ts` uses `PrismaNeon` adapter for serverless-compatible connections. Always import from `@/generated/prisma`, not `@prisma/client`.
