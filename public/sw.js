@@ -72,6 +72,9 @@ self.addEventListener('push', (event) => {
       icon: '/icone_memodate.webp',
       badge: '/icone_memodate.webp',
       tag: data.tag || 'memodate',
+      renotify: true,
+      vibrate: [200, 100, 200],
+      actions: [{ action: 'view', title: 'Ver eventos' }],
       data: data,
     }),
   )

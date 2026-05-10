@@ -58,14 +58,23 @@ function shouldNotifyToday(
   return sameDay(subtractDays(occurrence, event.daysBeforeAlert), today)
 }
 
-function buildMessage(event: {
+const TYPE_EMOJI: Record<string, string> = {
+  BIRTHDAY: '🎂',
+  ANNIVERSARY: '🎉',
+  HOLIDAY: '📅',
+  OTHER: '📌',
+}
+
+function buildNotification(event: {
   title: string
+  type: string
   daysBeforeAlert: number
-}): string {
+}): { title: string; body: string } {
+  const emoji = TYPE_EMOJI[event.type] ?? '📌'
   const d = event.daysBeforeAlert
-  if (d === 0) return `Hoje é ${event.title}!`
-  if (d === 1) return `${event.title} é amanhã!`
-  return `${event.title} em ${d} dias`
+  if (d === 0) return { title: `${emoji} ${event.title}`, body: 'É hoje! Não esqueça 🌟' }
+  if (d === 1) return { title: `${emoji} ${event.title}`, body: 'É amanhã!' }
+  return { title: `${emoji} ${event.title}`, body: `Em ${d} dias` }
 }
 
 export async function GET(req: Request) {
@@ -91,9 +100,10 @@ export async function GET(req: Request) {
     const toNotify = user.events.filter((e) => shouldNotifyToday(e, today))
 
     for (const event of toNotify) {
+      const { title, body } = buildNotification(event)
       const payload = JSON.stringify({
-        title: 'Memodate 🗓️',
-        body: buildMessage(event),
+        title,
+        body,
         tag: `event-${event.id}`,
         url: '/dashboard',
       })
