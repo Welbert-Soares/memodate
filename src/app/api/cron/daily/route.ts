@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { webpush } from '@/lib/webpush'
+import { sendWhatsapp } from '@/lib/whatsapp'
+import { isEventDateToday } from '@/lib/eventDate'
 
 function getTodayInTimezone(tz: string): Date {
   const now = new Date()
@@ -77,6 +79,11 @@ function buildNotification(event: {
   return { title: `${emoji} ${event.title}`, body: `Em ${d} dias` }
 }
 
+function buildWhatsappTodayMessage(event: { title: string; type: string }): string {
+  const emoji = TYPE_EMOJI[event.type] ?? '📌'
+  return `${emoji} *${event.title}*\n\nÉ hoje! Não esqueça 🌟`
+}
+
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization')
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -92,44 +99,59 @@ export async function GET(req: Request) {
 
   let sent = 0
   let removed = 0
+  let whatsappSent = 0
 
   for (const user of users) {
-    if (user.pushSubscriptions.length === 0) continue
-
     const today = getTodayInTimezone(user.timezone)
-    const toNotify = user.events.filter((e) => shouldNotifyToday(e, today))
 
-    for (const event of toNotify) {
-      const { title, body } = buildNotification(event)
-      const payload = JSON.stringify({
-        title,
-        body,
-        tag: `event-${event.id}`,
-        url: '/dashboard',
-      })
+    if (user.pushSubscriptions.length > 0) {
+      const toNotify = user.events.filter((e) => shouldNotifyToday(e, today))
 
-      for (const sub of user.pushSubscriptions) {
-        try {
-          await webpush.sendNotification(
-            {
-              endpoint: sub.endpoint,
-              keys: { p256dh: sub.p256dh, auth: sub.auth },
-            },
-            payload,
-          )
-          sent++
-        } catch (err: unknown) {
-          const status = (err as { statusCode?: number })?.statusCode
-          if (status === 410 || status === 404) {
-            await prisma.pushSubscription.deleteMany({
-              where: { endpoint: sub.endpoint },
-            })
-            removed++
+      for (const event of toNotify) {
+        const { title, body } = buildNotification(event)
+        const payload = JSON.stringify({
+          title,
+          body,
+          tag: `event-${event.id}`,
+          url: '/dashboard',
+        })
+
+        for (const sub of user.pushSubscriptions) {
+          try {
+            await webpush.sendNotification(
+              {
+                endpoint: sub.endpoint,
+                keys: { p256dh: sub.p256dh, auth: sub.auth },
+              },
+              payload,
+            )
+            sent++
+          } catch (err: unknown) {
+            const status = (err as { statusCode?: number })?.statusCode
+            if (status === 410 || status === 404) {
+              await prisma.pushSubscription.deleteMany({
+                where: { endpoint: sub.endpoint },
+              })
+              removed++
+            }
           }
         }
       }
     }
+
+    if (user.whatsappPhone && user.whatsappApiKey) {
+      const eventsToday = user.events.filter((e) => isEventDateToday(e, today))
+
+      for (const event of eventsToday) {
+        const ok = await sendWhatsapp(
+          user.whatsappPhone,
+          user.whatsappApiKey,
+          buildWhatsappTodayMessage(event),
+        )
+        if (ok) whatsappSent++
+      }
+    }
   }
 
-  return NextResponse.json({ sent, removed })
+  return NextResponse.json({ sent, removed, whatsappSent })
 }

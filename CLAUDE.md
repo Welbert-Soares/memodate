@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev          # Start development server (localhost:3000)
 npm run build        # prisma generate + next build
 npm run lint         # ESLint
+npm run test         # Vitest (unit tests)
 
 # Database
 npx prisma migrate dev    # Run migrations (uses DIRECT_URL from prisma.config.ts)
@@ -43,8 +44,8 @@ Copy `.env.example` to `.env`. Use `.env.local` to override for local dev (e.g. 
 
 **API Routes:**
 - `/api/auth/[...nextauth]` — NextAuth handler
-- `/api/cron/daily` — Daily push notification job. Runs at 11:00 UTC per `vercel.json`. For each user, resolves "today" in their timezone and sends push notifications for events where `date - daysBeforeAlert == today`.
-- `/api/cron/monthly` — Monthly WhatsApp summary. Runs at 11:00 UTC on the 1st of each month. Sends a formatted message via CallMeBot to users who configured `whatsappPhone` + `whatsappApiKey`.
+- `/api/cron/daily` — Daily push + WhatsApp job. Runs at 11:00 UTC per `vercel.json`. For each user, resolves "today" in their timezone, sends push notifications for events where `date - daysBeforeAlert == today`, and sends a WhatsApp message via CallMeBot for events whose actual date (`isEventDateToday` in `src/lib/eventDate.ts`) is today, for users who configured `whatsappPhone` + `whatsappApiKey`.
+- `/api/cron/monthly` — Monthly WhatsApp summary. Runs at 11:00 UTC on the 1st of each month. Sends a formatted message via CallMeBot (`src/lib/whatsapp.ts`) to users who configured `whatsappPhone` + `whatsappApiKey`.
 - `/api/push/subscribe` — Saves/deletes a `PushSubscription` record for the current user
 - `/api/push/test` — Sends a test push to the current user
 
