@@ -57,3 +57,13 @@ Copy `.env.example` to `.env`. Use `.env.local` to override for local dev (e.g. 
 **Date handling:** The cron job resolves each user's "today" using their stored `timezone` (IANA string, default `America/Sao_Paulo`) before checking which events to notify. All dates are stored as UTC in the DB.
 
 **Cron jobs (Vercel Hobby plan):** Max 100 cron jobs, minimum interval once per day, precision ±59 min. `CRON_SECRET` must be set in Vercel's Environment Variables panel — the `.env` file is not used by Vercel at runtime.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues on `Welbert-Soares/memodate`, managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context layout: `CONTEXT.md` + `docs/adr/` at the repo root (created lazily as terms/decisions get resolved). See `docs/agents/domain.md`.
