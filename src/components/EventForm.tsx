@@ -130,14 +130,14 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <p className={labelClass}>Tipo</p>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-wrap gap-2">
           {(Object.entries(EVENT_TYPE_CONFIG) as [EventType, (typeof EVENT_TYPE_CONFIG)[EventType]][]).map(
             ([value, config]) => {
               const Icon = config.icon
               return (
                 <label
                   key={value}
-                  className="relative flex items-center gap-2 rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-3 cursor-pointer transition-colors has-checked:border-indigo-500 has-checked:ring-1 has-checked:ring-indigo-500 has-checked:bg-indigo-50 dark:has-checked:bg-indigo-900/20"
+                  className="relative inline-flex items-center gap-2 rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 cursor-pointer transition-colors has-checked:border-indigo-500 has-checked:ring-1 has-checked:ring-indigo-500 has-checked:bg-indigo-50 dark:has-checked:bg-indigo-900/20"
                 >
                   <input
                     type="radio"
@@ -149,11 +149,11 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
                     className="peer sr-only"
                   />
                   <span
-                    className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full ${config.dot}`}
+                    className={`shrink-0 flex items-center justify-center w-7 h-7 rounded-full ${config.dot}`}
                   >
-                    <Icon size={16} className="text-white" />
+                    <Icon size={14} className="text-white" />
                   </span>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 peer-checked:text-indigo-700 dark:peer-checked:text-indigo-300">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap peer-checked:text-indigo-700 dark:peer-checked:text-indigo-300">
                     {config.label}
                   </span>
                 </label>

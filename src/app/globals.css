@@ -12,7 +12,26 @@
   }
 }
 
+/*
+ * Lock the document itself to the viewport. Without this, focusing an
+ * input inside a nested scroll container (e.g. the Notas textarea) makes
+ * iOS Safari scroll the whole page — including fixed chrome like
+ * BottomNav — to bring it above the keyboard, instead of scrolling just
+ * the app's own internal scroll container. Every real page assumes a
+ * fixed-height shell already (dashboard uses h-[100dvh]; /login uses
+ * min-h-screen), so only the app's designated scroll areas should move.
+ */
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  width: 100%;
   background: var(--background);
   color: var(--foreground);
   font-family:
