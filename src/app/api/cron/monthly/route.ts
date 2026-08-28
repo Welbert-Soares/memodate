@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { EventType } from '@/generated/prisma'
+import { sendWhatsapp } from '@/lib/whatsapp'
 
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -54,12 +55,6 @@ function buildMessage(
   )
 
   return lines.join('\n')
-}
-
-async function sendWhatsapp(phone: string, apiKey: string, message: string): Promise<boolean> {
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(message)}&apikey=${apiKey}`
-  const res = await fetch(url)
-  return res.ok
 }
 
 export async function GET(req: Request) {
