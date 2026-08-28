@@ -4,13 +4,17 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { EventType } from '@/generated/prisma'
 import { haptic } from '@/lib/haptic'
+import { EVENT_TYPE_CONFIG } from '@/lib/eventTypeConfig'
 
-const EVENT_TYPE_LABELS: Record<EventType, string> = {
-  BIRTHDAY: 'Aniversário',
-  ANNIVERSARY: 'Comemoração',
-  HOLIDAY: 'Feriado / Data especial',
-  OTHER: 'Outro',
-}
+const DAYS_BEFORE_OPTIONS: { value: number; label: string }[] = [
+  { value: 0, label: 'No dia' },
+  { value: 1, label: '1 dia antes' },
+  { value: 2, label: '2 dias antes' },
+  { value: 3, label: '3 dias antes' },
+  { value: 7, label: '1 semana antes' },
+  { value: 14, label: '2 semanas antes' },
+  { value: 30, label: '1 mês antes' },
+]
 
 type EventFormProps = {
   action: (formData: FormData) => Promise<void>
@@ -104,25 +108,6 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
         )}
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="type" className={labelClass}>
-          Tipo
-        </label>
-        <select
-          id="type"
-          name="type"
-          disabled={isPending}
-          defaultValue={defaultValues?.type ?? 'OTHER'}
-          className={inputClass}
-        >
-          {Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <div className="flex items-center justify-between rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3">
         <div>
           <p className={labelClass}>Repetir todo ano</p>
@@ -144,24 +129,61 @@ export function EventForm({ action, defaultValues }: EventFormProps) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="daysBeforeAlert" className={labelClass}>
-          Lembrar quantos dias antes?
-        </label>
-        <select
-          id="daysBeforeAlert"
-          name="daysBeforeAlert"
-          disabled={isPending}
-          defaultValue={defaultValues?.daysBeforeAlert ?? 1}
-          className={inputClass}
-        >
-          <option value="0">No dia</option>
-          <option value="1">1 dia antes</option>
-          <option value="2">2 dias antes</option>
-          <option value="3">3 dias antes</option>
-          <option value="7">1 semana antes</option>
-          <option value="14">2 semanas antes</option>
-          <option value="30">1 mês antes</option>
-        </select>
+        <p className={labelClass}>Tipo</p>
+        <div className="grid grid-cols-2 gap-2">
+          {(Object.entries(EVENT_TYPE_CONFIG) as [EventType, (typeof EVENT_TYPE_CONFIG)[EventType]][]).map(
+            ([value, config]) => {
+              const Icon = config.icon
+              return (
+                <label
+                  key={value}
+                  className="relative flex items-center gap-2 rounded-xl border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-3 cursor-pointer transition-colors has-checked:border-indigo-500 has-checked:ring-1 has-checked:ring-indigo-500 has-checked:bg-indigo-50 dark:has-checked:bg-indigo-900/20"
+                >
+                  <input
+                    type="radio"
+                    name="type"
+                    value={value}
+                    disabled={isPending}
+                    defaultChecked={(defaultValues?.type ?? 'OTHER') === value}
+                    onChange={() => haptic(6)}
+                    className="peer sr-only"
+                  />
+                  <span
+                    className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full ${config.dot}`}
+                  >
+                    <Icon size={16} className="text-white" />
+                  </span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 peer-checked:text-indigo-700 dark:peer-checked:text-indigo-300">
+                    {config.label}
+                  </span>
+                </label>
+              )
+            },
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <p className={labelClass}>Lembrar quantos dias antes?</p>
+        <div className="flex flex-wrap gap-2">
+          {DAYS_BEFORE_OPTIONS.map((opt) => (
+            <label
+              key={opt.value}
+              className="relative rounded-full border border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer transition-colors has-checked:border-indigo-600 has-checked:bg-indigo-600 has-checked:text-white"
+            >
+              <input
+                type="radio"
+                name="daysBeforeAlert"
+                value={opt.value}
+                disabled={isPending}
+                defaultChecked={(defaultValues?.daysBeforeAlert ?? 1) === opt.value}
+                onChange={() => haptic(6)}
+                className="sr-only"
+              />
+              {opt.label}
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
